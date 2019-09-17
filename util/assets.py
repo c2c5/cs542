@@ -2,6 +2,7 @@ from flask_assets import Bundle, Environment
 
 bundles = {
     'app_js': Bundle(
+        'jquery.min.js',
         'bootstrap/js/bootstrap.bundle.js',
         output='gen/app.js'),
     'app_css': Bundle(
