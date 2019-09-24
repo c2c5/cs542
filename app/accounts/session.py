@@ -20,6 +20,23 @@ def current_user():
     else:
         return None
 
+def current_user_roles():
+    if flask.has_request_context() and CS542_TOKEN_COOKIE in flask.request.cookies:
+        db = database.get_db()
+        if 'current_user_roles' not in flask.g:
+            with db.cursor() as cursor:
+                get_user_from_token_query = "SELECT R.role FROM User U, LoginSession L, UserRoles R WHERE L.token = %s AND U.userid = L.userid AND R.userid = U.userid;"
+                cursor.execute(get_user_from_token_query, flask.request.cookies[CS542_TOKEN_COOKIE])
+                result = cursor.fetchall()
+                if result is not None:
+                    result = [item['role'] for item in result]
+                flask.g.current_user_roles = result
+                return result
+        else:
+            return flask.g.current_user_roles
+    else:
+        return None
+
 def invalidate_token(token):
     db = database.get_db()
     with db.cursor() as cursor:
