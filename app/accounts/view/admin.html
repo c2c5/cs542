@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}[Admin] User Management{% endblock %}
+{% block header %}
+  <h1>User Management</h1>
+{% endblock %}
+
+{% block page %}
+
+<form method="get">
+    <div class="form-group">
+      <div class="row">
+          <div class="input-group col col-md-9"></div>
+        <div class="input-group col col-md-3">
+            <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
+            <div class="input-group-append">
+              <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
+            </div>
+        </div>
+      </div>
+    </div>
+</form>
+
+<table class="table">
+  <tr>
+    <th>Student Name</th>
+    <th>Membership dues paid</th>
+    <th>Waiver signed</th>
+    <th>CPR Certified</th>
+    <th>Setter?</th>
+    <th>Opener?</th>
+    <th>Admin?</th>
+    {% if 'admin' in current_user_roles() %}
+      <th>Actions</th>
+    {% endif %}
+  </tr>
+  {% for user in userlist %}
+  <tr>
+    <td>{{ user["student_name"] }}</td>
+
+    <!-- User Payments -->
+    <td>
+      {% if user["paid"] == 0 %}
+        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+          <a class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</a>
+        {% else %}
+          <span class="text-danger">Not Paid</span>
+        {% endif %}
+      {% else %}        
+        {% if 'admin' in current_user_roles() %}
+          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</a>
+        {% else %}
+          <span class="text-success">Paid</span>
+        {% endif %}
+      {% endif %}
+    </td>
+    <td>
+      {% if user["waiver"] == 0 %}
+        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+          <a class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Not Signed</a>
+        {% else %}
+          <span class="text-danger">Not Signed</span>
+        {% endif %}
+      {% else %}        
+        {% if 'admin' in current_user_roles() %}
+          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</a>
+        {% else %}
+          <span class="text-success">Signed</span>
+        {% endif %}
+      {% endif %}
+    </td>
+    <td>
+      {% if user["cpr_certified"] == 0 %}
+        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+          <a class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Not Certified</a>
+        {% else %}
+          <span class="text-secondary">Not Signed</span>
+        {% endif %}
+      {% else %}        
+        {% if 'admin' in current_user_roles() %}
+          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</a>
+        {% else %}
+          <span class="text-success">Signed</span>
+        {% endif %}
+      {% endif %}
+    </td>
+    <td>
+      {% if "setter" in user["roles"] %}
+        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
+      {% else %}
+        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
+      {% endif %}
+    </td>
+    <td>
+        {% if "opener" in user["roles"] %}
+        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
+      {% else %}
+        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
+      {% endif %}
+    </td>
+    <td>
+      {% if "admin" in user["roles"] %}
+        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
+      {% else %}
+        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
+      {% endif %}
+    </td>
+    {% if 'admin' in current_user_roles() %}
+      <td><a class="btn btn-danger" href="#">{{ octicon("trashcan", style="fill:white") }}</a></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

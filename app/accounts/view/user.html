@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block header %}
+  <h1>{% block title %}User Info for {{ user["student_name"] }} {% endblock %}</h1>
+{% endblock %}
+
+{% block page %}
+{% if current_user_roles() is not none %}
+<p>{{ user["student_name"] }} belongs to the following groups:</p>
+<ul>
+  {% for role in current_user_roles() %}
+  <li>{{ role }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>{{ user["student_name"] }} is a standard user and is not part of any groups</p>
+{% endif %}
+{% endblock %}
