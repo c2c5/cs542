@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, make_response
 from jinja2 import TemplateNotFound
 from util import database
-from app.accounts.session import current_user, invalidate_token, CS542_TOKEN_COOKIE, CS542_TOKEN_COOKIE_EXPIRY
+from app.accounts.session import current_user, current_user_roles, invalidate_token, CS542_TOKEN_COOKIE, CS542_TOKEN_COOKIE_EXPIRY
 import bcrypt
 import hashlib
 import secrets
@@ -16,7 +16,7 @@ def show():
         if (user is not None):
             return render_template('user.html', user=user)
         else:
-            return redirect(url_for('accounts.signup'))
+            return redirect(url_for('accounts.signin'))
     except TemplateNotFound:
         abort(500)
 
@@ -35,6 +35,12 @@ def signin():
             result = cursor.fetchone()
             if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
                 ## User successfuly authenticated, make the session for the user.
+
+                # Delte any old session that exists
+                delete_old_session_query = "DELETE FROM LoginSession WHERE userid=%s;"
+                cursor.execute(delete_old_session_query, result['userid'])
+
+                # Make a new session
                 session_token = secrets.token_hex(30)
                 make_user_session = "INSERT INTO LoginSession (userid, token) VALUES (%s, %s);"
                 cursor.execute(make_user_session, (result['userid'], session_token))
@@ -102,3 +108,17 @@ def signup():
 
         except TemplateNotFound:
             abort(500)
+
+@accounts.route('/admin')
+def admin():
+    if (current_user_roles() is not None and 'admin' in current_user_roles()):
+        db = database.get_db()
+
+        name_query = request.args["name"] if "name" in request.args else ""
+        with db.cursor() as cursor:
+            userList = "SELECT * FROM UserDataWithRole WHERE student_name like %s"
+            cursor.execute(userList, "%%%s%%"%(name_query))
+            result = cursor.fetchall()
+        return render_template('admin.html', userlist=result, search_name = name_query)
+    else:
+        abort(403)
