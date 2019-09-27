@@ -22,6 +22,8 @@ def current_user():
 
 def current_user_roles():
     if flask.has_request_context() and CS542_TOKEN_COOKIE in flask.request.cookies:
+        if (current_user() is None):
+            return []
         return current_user()["roles"].split(", ")
     else:
         return []
