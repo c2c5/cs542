@@ -11,6 +11,7 @@ app.secret_key = 'pWMZ5WDbm3qFo73LyL36ZnFEqATI212t'
 db.register_db(app)
 assets.register_assets(app)
 app.jinja_env.globals.update(current_user=current_user)
+app.jinja_env.globals.update(current_user=current_user)
 
 app.register_blueprint(accounts, url_prefix='/user')
 
