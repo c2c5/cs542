@@ -1,0 +1,31 @@
+{%extends 'base.html' %}
+
+<h1> {% block title %}SetRoutes{% endblock %} </h1>
+
+{% block page %}
+<h1>Start Setting</h1>
+<form method="post">
+    <hr>
+        <div class="form-group">
+            <label for="RouteID"><b>RouteID</b></label>
+            <input type="text" class="form-control" id="RouteID" placeholder="RouteID" name="RouteID" required>
+        </div>
+    <hr>
+        <div class="form-group">
+            <label for="Difficulty"><b>Difficulty</b></label>
+            <input type="text" class="form-control" id="Difficulty" placeholder="1-10" name="Difficulty" required>
+        </div>
+    <hr>
+        <div class="form-group">
+            <label for="PictureURL"><b>PictureURL</b></label>
+            <input type="text" class="form-control" id="PictureURL" placeholder="URL" name="PictureURL" required>
+        </div>
+    <hr>
+        <div class="form-group">
+            <label for="SetBy"><b>SetBy</b></label>
+            <input type="text" class="form-control" id="SetBy" placeholder="Your ID" name="SetBy" required>
+        </div>
+    <hr>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

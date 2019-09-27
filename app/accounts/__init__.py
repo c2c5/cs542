@@ -29,11 +29,13 @@ def signin():
 
         db = database.get_db()
         with db.cursor() as cursor:
-            studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            #studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            studentIDHash = request.form["studentID"]
             get_user_login = "SELECT password_hash, userid, student_name FROM User WHERE student_id=%s;"
             cursor.execute(get_user_login, studentIDHash)
             result = cursor.fetchone()
-            if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
+            #if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
+            if (cursor.rowcount == 1 and request.form["password"] == result['password_hash']):
                 ## User successfuly authenticated, make the session for the user.
                 session_token = secrets.token_hex(30)
                 make_user_session = "INSERT INTO LoginSession (userid, token) VALUES (%s, %s);"
@@ -80,10 +82,12 @@ def signup():
         db = database.get_db()
         with db.cursor() as cursor:
             salt = bcrypt.gensalt()
-            studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            #studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            studentIDHash = request.form["studentID"]
             add_user_query = "INSERT INTO User (student_id, student_name, join_date, password_hash) VALUES " + \
                              "(%s, %s, CURDATE(), %s);"
-            cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
+            #cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
+            cursor.execute(add_user_query, (studentIDHash, request.form["name"], request.form["password"]))
             if (cursor.rowcount == 1):
                 db.commit()
                 flash('Created user account', 'success')
@@ -102,3 +106,52 @@ def signup():
 
         except TemplateNotFound:
             abort(500)
+
+
+@accounts.route('/routes')
+def Route():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_routes_query = "SELECT routeid, set_by from Route"
+        cursor.execute(get_routes_query)
+        result = cursor.fetchall()
+    return render_template('Route.html', routes=result)
+
+
+@accounts.route('/routes/routespicture')
+def RoutePicture():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_routespic_query = "SELECT picture from Route WHERE routeid = %s"
+        cursor.execute(get_routespic_query,request.args.get("routeid"))
+        result = cursor.fetchone()
+    return render_template('RoutePicture.html', routepic=result)
+
+
+@accounts.route('/scores')
+def Scores():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_scores_query = "SELECT eventid, score from TournamentParticipants"
+        cursor.execute(get_scores_query)
+        result = cursor.fetchall()
+    return render_template('TournamentParticipants.html', records=result)
+
+@accounts.route('/SetRoutes',methods=["GET","POST"])
+def SetRoutes():
+    if request.method == "POST":
+        db = database.get_db()
+        with db.cursor() as cursor:
+            routeid = request.form["RouteID"]
+            difficulty = request.form["Difficulty"]
+            picture = request.form["PictureURL"]
+            set_by = request.form["SetBy"]
+            add_route_query = "INSERT INTO Route (routeid, set_by, difficulty, picture) VALUES " + \
+                              "(%s, %s, %s, %s);"
+            cursor.execute(add_route_query, (routeid, set_by, difficulty, picture))
+            db.commit()
+            flash('Created a route', 'success')
+            return render_template('SetRoute.html')
+    else:
+        flash("Please ReEnter")
+        return render_template('SetRoute.html')
