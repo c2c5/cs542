@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block header %}
+  <h1>{% block title %}Events Menu{% endblock %}</h1>
+{% endblock %}
+
+{% block page %}
+<table class="table">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Start Time</th>
+			<th>End Time</th>
+			<th>Cost</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for entry in entries %}
+		<tr>
+			<td>{{ entry.name }}</td>
+			<td>{{ entry.description }}</td>
+			<td>{{ entry.start }}</td>
+			<td>{{ entry.end }}</td>
+			<td>{{ entry.cost }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

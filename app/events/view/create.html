@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block header %}
+  <h1>{% block title %}Create Events{% endblock %}</h1>
+{% endblock %}
+
+{% block page %}
+<form method="post">
+	<div class="form-group">
+		<label for='event_name'>Events Name</label>
+		<input type="text" name="event_name" id="event_name" class="form-control" placeholder="event name" value="{{name}}">
+	</div>
+	<div class="form-group">
+		<label for='description'>Description</label>
+		<input type="text" name="description" id="description" class="form-control" placeholder="description" value="{{description}}">
+	</div>
+	<div class="form-group">
+		<label for="start">Start Time</label>
+		<input type="text" name="start" id="start" class="form-control" placeholder="2019-01-01 00:00:00" value="{{start}}">
+	</div>
+	<div class="form-group">
+		<label for="end">End Time</label>
+		<input type="text" name="end" id="end" class="form-control" placeholder="2019-01-01 00:00:00" value="{{end}}">
+	</div>
+	<div class="form-group">
+		<label for="max_participants">Max Participants</label>
+		<input type="text" name="max_participants" id="max_participants" class="form-control" placeholder="100" value="{{max}}">
+	</div>
+	<div class="form-group">
+		<label for="cost">Cost</label>
+		<input type="text" name="cost" id="cost" class="form-control" placeholder="50" value="{{cost}}">
+	</div>
+	<label for="PMO">Paid Member Only?</label>
+	<div class="radio">
+		<label for="PMO_Yes">
+				<input type="radio" name="PMO_Options" id="yes" value=1 checked>Yes
+		</label>
+	</div>
+	<div class="radio">
+		<label for="PMO_NO">
+				<input type="radio" name="PMO_Options" id="no" value=0>No
+		</label>
+	</div>
+	<button type="submit" class="btn btn-primary">Create</button>
+</form>
+{% endblock %}
