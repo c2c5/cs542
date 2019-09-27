@@ -21,9 +21,14 @@
         
                 <div class="collapse navbar-collapse" id="navbarsExample07">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
                     </li>
+                    {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('accounts.admin')}}">User Admin</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     {% if current_user() is none %}
