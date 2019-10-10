@@ -29,7 +29,10 @@
                             Events</a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="{{ url_for('events.show')}}">Schedule</a>
+                            <a class="dropdown-item" >My Events</a>
+                            {% if 'admin' in current_user_roles() or 'setter' in current_user_roles() %}
                             <a class="dropdown-item" href="{{ url_for('events.create')}}">Create</a>
+                            {% endif %}
                         </div>
                     </li>
                     {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}

@@ -14,9 +14,6 @@ def show():
             with db.cursor() as cursor:
                 get_event = "SELECT name, description, start, end, cost FROM event;"
                 cursor.execute(get_event)
-                #print(cursor.fetchall())
-                #entries = [dict(name=row[0], des=row[1], start=row[2], end=row[3], cost=row[4]) for row in cursor.fetchall()]
-                #print(entries)
                 entries = cursor.fetchall()
                 return render_template('events.html', entries=entries)
         else:
@@ -26,6 +23,11 @@ def show():
 
 @events.route('/create', methods=["GET", "POST"])
 def create():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_opener = "SELECT student_name from userdatawithrole where roles = 'opener' or roles = 'admin'"
+        cursor.execute(get_opener)
+        entries = cursor.fetchall()
     if request.method == "POST":
         db = database.get_db()
         with db.cursor() as cursor:
@@ -43,6 +45,6 @@ def create():
                 return redirect(url_for('events.show', **request.args))
     else:
         try:
-            return render_template('create.html')
+            return render_template('create.html', entries=entries)
         except TemplateNotFound:
             abort(500)
