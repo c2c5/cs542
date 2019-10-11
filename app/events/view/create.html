@@ -75,19 +75,13 @@ $(function () {
 		</label>
 	</div>
 	<div class="form-group">
-		<label for"opener">Opener</label>
-		<div class="btn-group">
-			<button type="button" class="btn btn-default">Opener</button>
-			<button type="button" class="btn btn-default dropdown toggle" data-toggle="dropdown" aria-haspopup="true" aria-expand="false">
-				<span class="caret"></span>
-				<span class="sr-only">Toggle Dropdown</span>
-			</button>
+		<label for="opener">Opener</label>
+		<select name="opener" class="form-control">
+			<option value="None">Select an Opener</option>
 			{% for entry in entries %}
-			<ul class="dropdown-menu">
-				<li>entry[name]</li>
-			</ul>
+				<option value="{{ entry["userid"] }}">{{ entry["student_name"] }}</option>
 			{% endfor %}
-		</div>
+		</select>
 	</div>
 	<button type="submit" class="btn btn-primary">Create</button>
 </form>

@@ -25,12 +25,13 @@ def show():
 def create():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_opener = "SELECT student_name from userdatawithrole where roles = 'opener' or roles = 'admin'"
+        get_opener = "SELECT DISTINCT student_name, U.userid from userdata U, userroles R where R.role = 'opener' or R.role = 'admin' and U.userid=R.userid"
         cursor.execute(get_opener)
         entries = cursor.fetchall()
     if request.method == "POST":
         db = database.get_db()
         with db.cursor() as cursor:
+            print("Opener userid is %s" % request.form['opener'])
             add_event_query = "INSERT INTO event(name, description, start, end, max_participants, cost, paid_members_only) VALUES" + \
                               "(%s, %s, %s, %s, %s, %s, %s);"
             cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
