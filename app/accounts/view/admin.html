@@ -34,80 +34,131 @@
     {% endif %}
   </tr>
   {% for user in userlist %}
-  <tr>
+  <tr id="user-{{ user['userid'] }}">
     <td>{{ user["student_name"] }}</td>
 
-    <!-- User Payments -->
     <td>
-      {% if user["paid"] == 0 %}
-        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
-          <a class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</a>
-        {% else %}
-          <span class="text-danger">Not Paid</span>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["paid"] == 0 %}
+          {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+            <input type="hidden" name="paid" value="1"/>
+            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</button>
+          {% else %}
+            <span class="text-danger">Not Paid</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="paid" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</button>
+          {% else %}
+            <span class="text-success">Paid</span>
+          {% endif %}
         {% endif %}
-      {% else %}        
-        {% if 'admin' in current_user_roles() %}
-          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</a>
-        {% else %}
-          <span class="text-success">Paid</span>
-        {% endif %}
-      {% endif %}
+      </form>
     </td>
     <td>
-      {% if user["waiver"] == 0 %}
-        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
-          <a class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Not Signed</a>
-        {% else %}
-          <span class="text-danger">Not Signed</span>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["waiver"] == 0 %}
+          {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+            <input type="hidden" name="waiver" value="1"/>
+            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Not Signed</button>
+          {% else %}
+            <span class="text-danger">Not Signed</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="waiver" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</button>
+          {% else %}
+            <span class="text-success">Signed</span>
+          {% endif %}
         {% endif %}
-      {% else %}        
-        {% if 'admin' in current_user_roles() %}
-          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</a>
-        {% else %}
-          <span class="text-success">Signed</span>
-        {% endif %}
-      {% endif %}
+      </form>
     </td>
     <td>
-      {% if user["cpr_certified"] == 0 %}
-        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
-          <a class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Not Certified</a>
-        {% else %}
-          <span class="text-secondary">Not Signed</span>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["cpr_certified"] == 0 %}
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="cpr_certified" value="1"/>
+            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Not Certified</button>
+          {% else %}
+            <span class="text-secondary">Not Certified</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="cpr_certified" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</button>
+          {% else %}
+            <span class="text-success">Certified</span>
+          {% endif %}
         {% endif %}
-      {% else %}        
-        {% if 'admin' in current_user_roles() %}
-          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</a>
-        {% else %}
-          <span class="text-success">Signed</span>
-        {% endif %}
-      {% endif %}
+      </form>
     </td>
+    {% for role in ["setter", "opener", "admin"] %}
     <td>
-      {% if "setter" in user["roles"] %}
-        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
+      {% if 'admin' in current_user_roles() %}
+        <form method="post">
+          <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+          {% if role in user["roles"] %}
+            <input type="hidden" name="{{ role }}" value="0"/>
+            <button type="submit" class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</button>
+          {% else %}
+            <input type="hidden" name="{{ role }}" value="1"/>
+            <button type="submit" class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</button>
+          {% endif %}
+        </form>
       {% else %}
-        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
+        {% if role in user["roles"] %}
+          {{ octicon("check") }}
+        {% else %}
+          {{ octicon("x") }}
+        {% endif %}
       {% endif %}
     </td>
-    <td>
-        {% if "opener" in user["roles"] %}
-        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
-      {% else %}
-        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
-      {% endif %}
-    </td>
-    <td>
-      {% if "admin" in user["roles"] %}
-        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
-      {% else %}
-        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
-      {% endif %}
-    </td>
+    {% endfor %}
     {% if 'admin' in current_user_roles() %}
-      <td><a class="btn btn-danger" href="#">{{ octicon("trashcan", style="fill:white") }}</a></td>
+      <td><button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button></td>
     {% endif %}
   </tr>
   {% endfor %}
 </table>
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModal">Confirm User Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <span id="userNameToDelete"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <form method="post">
+          <input type="hidden" name="delete" value="" id="confirm_user_id1"/>
+          <input type="hidden" name="userid" value="" id="confirm_user_id2"/>
+          <button type="submit" class="btn btn-danger">Yes, Really Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).on("click", "#deleteUser", function () {
+    var id = $(this).parent().closest('tr').attr("id").split("-")[1]
+    var name = $(this).parent().closest('tr').children(1).html()
+    $("#confirm_user_id1").val(id)
+    $("#confirm_user_id2").val(id)
+    $("#userNameToDelete").html(name)
+    console.log(id, name)
+    // As pointed out in comments, 
+    // it is unnecessary to have to manually call the modal.
+    // $('#addBookDialog').modal('show');
+ });
+</script>
 {% endblock %}

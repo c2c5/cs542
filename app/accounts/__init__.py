@@ -9,6 +9,10 @@ import secrets
 accounts = Blueprint('accounts', __name__,
                         template_folder='view')
 
+#####################
+# User Landing Page #
+#####################
+
 @accounts.route('/')
 def show():
     try:
@@ -19,6 +23,10 @@ def show():
             return redirect(url_for('accounts.signin'))
     except TemplateNotFound:
         abort(500)
+
+##############################
+# Account Session Management #
+##############################
 
 @accounts.route('/login', methods=["GET","POST"])
 def signin():
@@ -109,16 +117,71 @@ def signup():
         except TemplateNotFound:
             abort(500)
 
-@accounts.route('/admin')
-def admin():
-    if (current_user_roles() is not None and 'admin' in current_user_roles()):
-        db = database.get_db()
+##########################
+# Account Administration #
+##########################
 
-        name_query = request.args["name"] if "name" in request.args else ""
-        with db.cursor() as cursor:
-            userList = "SELECT * FROM UserDataWithRole WHERE student_name like %s"
-            cursor.execute(userList, "%%%s%%"%(name_query))
-            result = cursor.fetchall()
-        return render_template('admin.html', userlist=result, search_name = name_query)
+@accounts.route('/admin', methods=["GET","POST"])
+def admin():
+    if (current_user_roles() is not None and ('admin' in current_user_roles() or 'opener' in current_user_roles())):
+        db = database.get_db()
+        if request.method == "GET":
+            name_query = request.args["name"] if "name" in request.args else ""
+            with db.cursor() as cursor:
+                userList = "SELECT * FROM UserDataWithRole WHERE student_name like %s"
+                cursor.execute(userList, "%%%s%%"%(name_query))
+                result = cursor.fetchall()
+            return render_template('admin.html', userlist=result, search_name = name_query)
+        elif request.method == "POST":
+            param = None
+            val = None
+            for attr in ["paid", "waiver", "cpr_certified"]:
+                if attr in request.form:
+                    param = attr
+                    val = request.form[attr]
+                    break
+            if not param == None:
+                if ( 'admin' in current_user_roles() or ((param == "paid" or param == "waiver") and int(val) == 1)):
+                    with db.cursor() as cursor:
+                        userupdate = "UPDATE UserData SET " + param + "=%s WHERE userid=%s"
+                        cursor.execute(userupdate, (val, request.form["userid"]))
+                        db.commit()
+                    return redirect(url_for('accounts.admin', **request.args))
+                else:
+                    abort(403)
+            
+            if ( 'admin' in current_user_roles() ):
+                for attr in ["setter", "opener", "admin"]:
+                    if attr in request.form:
+                        param = attr
+                        val = request.form[attr]
+                        break
+                if (current_user()["userid"] == int(request.form["userid"]) and param == "admin" and int(val) == 0):
+                    flash("You cannot demote yourself", "danger")
+                    return redirect(url_for('accounts.admin', **request.args))
+                if not param == None:
+                    with db.cursor() as cursor:
+                        userupdate = None
+                        if (int(val) == 1):
+                            userupdate = "INSERT INTO UserRoles VALUES(%s,%s)"
+                        else:
+                            userupdate = "DELETE FROM UserRoles WHERE userid=%s AND role=%s"
+                        cursor.execute(userupdate, (request.form["userid"], param))
+                        db.commit()
+                    return redirect(url_for('accounts.admin', **request.args))
+
+                if ("delete" in request.form):
+                    with db.cursor() as cursor:
+                        userdel = "DELETE FROM User WHERE userid=%s"
+                        cursor.execute(userdel, (request.form["delete"]))
+                    db.commit()
+                    return redirect(url_for('accounts.admin', **request.args))
+
+                abort(400)
+            else:
+                abort(403)
+        else:
+            print(request)
+            return "asd"
     else:
         abort(403)
