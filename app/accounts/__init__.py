@@ -30,11 +30,9 @@ def show():
 
 @accounts.route('/login', methods=["GET","POST"])
 def signin():
-    user = current_user()
     if (request.method == "GET"):
         return render_template('login.html')
     elif (request.method == "POST"):
-
         db = database.get_db()
         with db.cursor() as cursor:
             studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
@@ -180,8 +178,5 @@ def admin():
                 abort(400)
             else:
                 abort(403)
-        else:
-            print(request)
-            return "asd"
     else:
         abort(403)

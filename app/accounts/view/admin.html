@@ -6,19 +6,82 @@
 
 {% block page %}
 
-<form method="get">
-    <div class="form-group">
-      <div class="row">
-          <div class="input-group col col-md-9"></div>
-        <div class="input-group col col-md-3">
-            <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
-            <div class="input-group-append">
-              <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
-            </div>
+<div class="form-group">
+  <div class="row">
+    <div class="input-group col col-md-7"></div>
+    <div class=" col col-md-3">
+      <form method="get">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
+          </div>
         </div>
+      </form>
+    </div>
+    <div class="dropdown col-md-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right">
+        {{ octicon("zap", style="fill:white") }} Filter
+      </button>
+      <div class="dropdown-menu">
+        <table class="table">
+          {% for filt in ["paid", "waiver", "cpr", "setter", "opener", "admin"] %}
+          <tr>
+            <td style="border:none">{{ filt.capitalize() }}</td>
+            <td style="border:none">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <form method="GET">
+                  <input style="display:none" type="hidden" name="{{filt}}" value="1" />
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt) %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-success">{{ octicon("check", style="fill:white") }}</button>
+                </form>
+                <form method="GET">
+                  <input style="display:none" type="hidden" name="{{filt}}" value="0" />
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt) %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-danger">{{ octicon("x", style="fill:white") }}</button>
+                </form>
+                <form method="GET">
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt) %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-secondary">{{ octicon("dash", style="fill:white") }}</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
       </div>
     </div>
-</form>
+  </div>
+</div>
+
+{% if request.args|length > 0 %}
+<p><strong>Active Filters</strong> <span class="text-muted"><small>Click on a filter to clear it</small></span></p>
+{% for filt, filtval in request.args.items() %}
+  {% if filtval != "" %}
+  <form method="GET" style="display: inline-block;">
+    {% for arg, val in request.args.items() %}
+      {% if (arg != filt) %}
+      <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="btn btn-secondary" style="display: inline-block;">{{ octicon("x", style="fill:white") }} {{filt.capitalize()}}: {{ "Yes" if filtval=="1" else "No" }}</button>
+  </form>
+  {% endif %}
+{% endfor %}
+<br /><br />
+{% endif %}
 
 <table class="table">
   <tr>
@@ -155,10 +218,6 @@
     $("#confirm_user_id1").val(id)
     $("#confirm_user_id2").val(id)
     $("#userNameToDelete").html(name)
-    console.log(id, name)
-    // As pointed out in comments, 
-    // it is unnecessary to have to manually call the modal.
-    // $('#addBookDialog').modal('show');
  });
 </script>
 {% endblock %}
