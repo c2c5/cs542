@@ -8,10 +8,15 @@
 
 <div class="form-group">
   <div class="row">
-    <div class="input-group col col-md-7"></div>
-    <div class=" col col-md-3">
+    <div class="input-group col col-md-6"></div>
+    <div class=" col col-md-4">
       <form method="get">
         <div class="input-group">
+          {% for arg, val in request.args.items() %}
+          {% if (arg != "name") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+          {% endfor %}
           <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
           <div class="input-group-append">
             <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
@@ -76,10 +81,13 @@
       <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
       {% endif %}
     {% endfor %}
-    <button type="submit" class="btn btn-secondary" style="display: inline-block;">{{ octicon("x", style="fill:white") }} {{filt.capitalize()}}: {{ "Yes" if filtval=="1" else "No" }}</button>
+    <button type="submit" class="btn btn-info" style="display: inline-block;">{{ octicon("tag", style="fill:white") }} {{filt.capitalize()}}: {{ "Yes" if filtval=="1" else ( filtval if filtval !="0" else "No") }}</button>
   </form>
   {% endif %}
 {% endfor %}
+<form method="GET" style="display: inline-block;">
+  <button type="submit" class="btn btn-danger" style="display: inline-block;">{{ octicon("x", style="fill:white") }} Clear all filters</button>
+</form>
 <br /><br />
 {% endif %}
 

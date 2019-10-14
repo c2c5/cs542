@@ -124,12 +124,30 @@ def admin():
     if (current_user_roles() is not None and ('admin' in current_user_roles() or 'opener' in current_user_roles())):
         db = database.get_db()
         if request.method == "GET":
-            name_query = request.args["name"] if "name" in request.args else ""
+            query_conditions = []
+            for arg, val in request.args.items():
+                if (arg == "paid"):
+                    query_conditions.append("paid=%s" % db.escape(val))
+                elif (arg == "waiver"):
+                    query_conditions.append("waiver=%s" % db.escape(val))
+                elif (arg == "cpr"):
+                    query_conditions.append("cpr_certified=%s" % db.escape(val))
+                elif (arg == "name"):
+                    query_conditions.append("student_name LIKE %s" % db.escape("%" + val + "%"))
+                elif (arg == "setter"):
+                    query_conditions.append("roles " + ("NOT " if val=="0" else "") + "LIKE '%setter%'")
+                elif (arg == "opener"):
+                    query_conditions.append("roles " + ("NOT " if val=="0" else "") + "LIKE '%opener%'")
+                elif (arg == "admin"):
+                    query_conditions.append("roles " + ("NOT " if val=="0" else "") + "LIKE '%admin%'")
             with db.cursor() as cursor:
-                userList = "SELECT * FROM UserDataWithRole WHERE student_name like %s"
-                cursor.execute(userList, "%%%s%%"%(name_query))
+                query = "SELECT * FROM UserDataWithRole"
+                if (len(query_conditions) > 0):
+                    query += " WHERE " + (" AND ".join(query_conditions))
+                print(query)
+                cursor.execute(query)
                 result = cursor.fetchall()
-            return render_template('admin.html', userlist=result, search_name = name_query)
+            return render_template('admin.html', userlist=result, search_name = request.args["name"] if "name" in request.args else "")
         elif request.method == "POST":
             param = None
             val = None
