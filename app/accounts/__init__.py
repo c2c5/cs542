@@ -149,14 +149,12 @@ def admin():
             query = "SELECT COUNT(*) as ct FROM UserDataWithRole"
             if (len(query_conditions) > 0):
                 query += " WHERE " + (" AND ".join(query_conditions))
-            print(query)
             cursor.execute(query)
             count = cursor.fetchone()["ct"]
         # Pagination calculations
         page = int(request.args["page"]) if "page" in request.args else 0
         offset = page*LIMIT
         maxpage = math.ceil(count/LIMIT)-1
-        print(page, count, maxpage, maxpage*LIMIT)
         pages = []
         if (maxpage >= 2):
             if (page == 0):
@@ -182,7 +180,6 @@ def admin():
             if (len(query_conditions) > 0):
                 query += " WHERE " + (" AND ".join(query_conditions))
             query += " LIMIT %s OFFSET %s" % (db.escape(LIMIT), db.escape(offset))
-            print(query)
             cursor.execute(query)
             result = cursor.fetchall()
 
