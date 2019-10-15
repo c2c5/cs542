@@ -235,7 +235,7 @@
     </ul>
   </nav>
   <br />
-  <p>Showing {{page*limit+1}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p>
+  <p>Showing {{page*limit+1 if count > 0 else 0}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p>
 </div>
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
   <div class="modal-dialog" role="document">
