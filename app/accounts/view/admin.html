@@ -38,7 +38,7 @@
                 <form method="GET">
                   <input style="display:none" type="hidden" name="{{filt}}" value="1" />
                   {% for arg, val in request.args.items() %}
-                  {% if (arg != filt) %}
+                  {% if (arg != filt and arg != "page") %}
                   <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
                   {% endif %}
                   {% endfor %}
@@ -47,20 +47,20 @@
                 <form method="GET">
                   <input style="display:none" type="hidden" name="{{filt}}" value="0" />
                   {% for arg, val in request.args.items() %}
-                  {% if (arg != filt) %}
+                  {% if (arg != filt and arg != "page") %}
                   <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
                   {% endif %}
                   {% endfor %}
                   <button type="submit" class="btn btn-danger">{{ octicon("x", style="fill:white") }}</button>
                 </form>
-                <form method="GET">
+                <!--<form method="GET">
                   {% for arg, val in request.args.items() %}
                   {% if (arg != filt) %}
                   <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
                   {% endif %}
                   {% endfor %}
                   <button type="submit" class="btn btn-secondary">{{ octicon("dash", style="fill:white") }}</button>
-                </form>
+                </form>-->
               </div>
             </td>
           </tr>
@@ -71,13 +71,13 @@
   </div>
 </div>
 
-{% if request.args|length > 0 %}
+{% if (request.args.keys()|reject("==", "page")|list)|length > 0 %}
 <p><strong>Active Filters</strong> <span class="text-muted"><small>Click on a filter to clear it</small></span></p>
 {% for filt, filtval in request.args.items() %}
-  {% if filtval != "" %}
+  {% if filtval != "" and filt != "page" %}
   <form method="GET" style="display: inline-block;">
     {% for arg, val in request.args.items() %}
-      {% if (arg != filt) %}
+      {% if (arg != filt and arg != "page") %}
       <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
       {% endif %}
     {% endfor %}
@@ -94,7 +94,8 @@
 <table class="table">
   <tr>
     <th>Student Name</th>
-    <th>Membership dues paid</th>
+    <th>Join Date</th>
+    <th>Membership Paid</th>
     <th>Waiver signed</th>
     <th>CPR Certified</th>
     <th>Setter?</th>
@@ -107,7 +108,7 @@
   {% for user in userlist %}
   <tr id="user-{{ user['userid'] }}">
     <td>{{ user["student_name"] }}</td>
-
+    <td>{{ user["join_date"] }}</td>
     <td>
       <form method="post">
         <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
@@ -191,11 +192,51 @@
     </td>
     {% endfor %}
     {% if 'admin' in current_user_roles() %}
-      <td><button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button></td>
+      <td>
+        <button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+        <a class="btn btn-secondary" href="{{ url_for('accounts.edit', id=user['userid']) }}">{{ octicon("pencil", style="fill:white") }}</a>
+      </td>
     {% endif %}
   </tr>
   {% endfor %}
 </table>
+<div style="text-align: center; width:100%; display:block">
+  <nav style="display: inline-block;">
+    <ul class="pagination">
+      <form method="GET">
+        {% for arg, val in request.args.items() %}
+          {% if (arg != "page") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+        {% endfor %}
+        <input style="display:none" type="hidden" name="page" value="{{ page-1 }}" />
+        <li class="page-item {{ 'disabled' if page==0 }} "><button type="submit" class="page-link" href="#">&laquo;</button></li>
+      </form>
+      {% for p in pages %}
+        <form method="GET">
+          {% for arg, val in request.args.items() %}
+            {% if (arg != "page") %}
+            <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+            {% endif %}
+          {% endfor %}
+          <input style="display:none" type="hidden" name="page" value="{{ p }}" />
+          <li class="page-item {{ 'active' if page==p }}"><button type="submit" class="page-link" href="#">{{p+1}}</button></li>
+        </form>
+      {% endfor %}
+      <form method="GET">
+        {% for arg, val in request.args.items() %}
+          {% if (arg != "page") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+        {% endfor %}
+        <input style="display:none" type="hidden" name="page" value="{{ page+1 }}" />
+        <li class="page-item {{ 'disabled' if page==maxpage }} "><button type="submit" class="page-link" href="#">&raquo;</button></li>
+      </form>
+    </ul>
+  </nav>
+  <br />
+  <p>Showing {{page*limit+1}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p>
+</div>
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
