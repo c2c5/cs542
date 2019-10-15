@@ -181,9 +181,9 @@ def admin():
             query = "SELECT * FROM UserDataWithRole"
             if (len(query_conditions) > 0):
                 query += " WHERE " + (" AND ".join(query_conditions))
-            query += " LIMIT %s offset %s"
+            query += " LIMIT %s OFFSET %s" % (db.escape(LIMIT), db.escape(offset))
             print(query)
-            cursor.execute(query, (LIMIT, offset))
+            cursor.execute(query)
             result = cursor.fetchall()
 
         return render_template('admin.html', userlist=result, pages=pages, page=page, maxpage=maxpage, limit=LIMIT, count=count, search_name = request.args["name"] if "name" in request.args else "")
