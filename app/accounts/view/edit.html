@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Account options for {{ user["student_name"] }}{% endblock %}
+{% block header %}
+    <h1>Account options for {{ user["student_name"] }}</h1>
+{% endblock %}
+
+{% block page %}
+<h2>{% if "admin" in user["roles"].split(", ") %}
+        <span class="badge badge-danger">Admin</span>
+    {% endif %}
+    {% if "opener" in user["roles"].split(", ") %}
+        <span class="badge badge-warning">Opener</span>
+    {% endif %}
+    {% if "setter" in user["roles"].split(", ") %}
+        <span class="badge badge-secondary">Setter</span>
+    {% endif %} </h2>
+    <br />
+<h3 style="font-variant:small-caps;">Edit Account Details</h3>
+<br />
+<form method="post">
+    <div class="form-group">
+        <label for="name">Your <span style="text-decoration: underline">Full</span> Name</label>
+        <input type="text" name="name" class="form-control" id="name" placeholder="Full Name" value="{{ user['student_name'] }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<br />
+<br />
+
+<h3 style="font-variant:small-caps;">Reset Password</h3>
+{% if "admin" not in current_user_roles() or current_user()["userid"] == user["userid"] %}
+<small>NOTE: For security reasons, resetting your password will log you out.</small>
+{% else %}
+<small>NOTE: For security reasons, resetting this password will log this user out.</small>
+{% endif %}
+<br /><br />
+<form method="post">
+    {% if "admin" not in current_user_roles() or current_user()["userid"] == user["userid"] %}
+    <div class="form-group">
+        <label for="password">Old Password</label>
+        <input type="password" name="oldpassword" class="form-control" id="password" placeholder="Password">
+    </div>
+    {% else %}
+        <input type="hidden" name="oldpassword" class="form-control" id="password" placeholder="Password">
+    {% endif %}
+    <div class="form-group">
+        <label for="password">New Password</label>
+        <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+    </div>
+    <div class="form-group">
+        <label for="password2">Password Confirmation</label>
+        <input type="password" name="confirmpassword" class="form-control" id="password2" placeholder="Confirm Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<br />
+<br />
+
+<h3 style="font-variant:small-caps;">Delete Account</h3>
+<button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }} Permanently Delete Account</button>
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="confirmationModal">Confirm User Deletion</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete this account permanently? This cannot be undone. <br /><br />
+            Deleting your account will:
+            <ul>
+                <li>Delete all of your account data</li>
+                <li>Delete or anonymize any data associated with your account</li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <form method="post">
+            <input type="hidden" name="delete" value="{{ user['userid'] }}"/>
+            <button type="submit" class="btn btn-danger">Yes, Really Delete</button>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+{% endblock %} 
