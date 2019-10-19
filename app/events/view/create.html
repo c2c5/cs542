@@ -35,7 +35,7 @@ $(function () {
 	</div>
 	<div class="form-group">
 		<label for='description'>Description</label>
-		<input type="text" name="description" id="description" class="form-control" placeholder="description" value="{{description}}">
+		<textarea name="description" id="description" class="form-control" placeholder="description" value="{{description}}" rows="3"></textarea>
 	</div>
 	<div class="form-group">
 		<label for="start">Start Time</label>
@@ -76,18 +76,12 @@ $(function () {
 	</div>
 	<div class="form-group">
 		<label for"opener">Opener</label>
-		<div class="btn-group">
-			<button type="button" class="btn btn-default">Opener</button>
-			<button type="button" class="btn btn-default dropdown toggle" data-toggle="dropdown" aria-haspopup="true" aria-expand="false">
-				<span class="caret"></span>
-				<span class="sr-only">Toggle Dropdown</span>
-			</button>
+		<select class="form-control" name="opener">
+			<option value="None">Select an Opener</option>
 			{% for entry in entries %}
-			<ul class="dropdown-menu">
-				<li>entry[name]</li>
-			</ul>
+			<option value="{{ entry.userid }}">{{ entry.student_name }}</option>
 			{% endfor %}
-		</div>
+		</select>
 	</div>
 	<button type="submit" class="btn btn-primary">Create</button>
 </form>

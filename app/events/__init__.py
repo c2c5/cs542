@@ -25,7 +25,7 @@ def show():
 def create():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_opener = "SELECT student_name from userdatawithrole where roles = 'opener' or roles = 'admin'"
+        get_opener = "SELECT userid, student_name from userdatawithrole where roles = 'opener' or roles = 'admin'"
         cursor.execute(get_opener)
         entries = cursor.fetchall()
     if request.method == "POST":
