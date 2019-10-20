@@ -12,7 +12,7 @@ def show():
         if (user is not None):
             db = database.get_db()
             with db.cursor() as cursor:
-                get_event = "SELECT name, description, start, end, cost FROM event;"
+                get_event = "SELECT eventid, name, start, end FROM event;"
                 cursor.execute(get_event)
                 entries = cursor.fetchall()
                 return render_template('events.html', entries=entries)
@@ -20,6 +20,15 @@ def show():
             return redirect(url_for('accounts.signup'))
     except TemplateNotFound:
         abort(500)
+
+@events.route('/detail/<id>')
+def show_info(id):
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only FROM event WHERE eventid=%s;"
+        cursor.execute(get_event_info, id)
+        info = cursor.fetchall()
+        return render_template('event_info.html', entries=info)
 
 @events.route('/create', methods=["GET", "POST"])
 def create():

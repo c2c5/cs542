@@ -1,29 +1,24 @@
 {% extends 'base.html' %}
+{% block title %}Events Menu{% endblock %}
 {% block header %}
-  <h1>{% block title %}Events Menu{% endblock %}</h1>
+  <h1>Events Menu</h1>
 {% endblock %}
 
 {% block page %}
 <table class="table">
-	<thead>
-		<tr>
-			<th>Name</th>
-			<th>Description</th>
-			<th>Start Time</th>
-			<th>End Time</th>
-			<th>Cost</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for entry in entries %}
-		<tr>
-			<td>{{ entry.name }}</td>
-			<td>{{ entry.description }}</td>
-			<td>{{ entry.start }}</td>
-			<td>{{ entry.end }}</td>
-			<td>{{ entry.cost }}</td>
-		</tr>
-		{% endfor %}
-	</tbody>
+	<tr>
+		<th>Name</th>
+		<th>Start Time</th>
+		<th>End Time</th>
+	</tr>
+	{% for entry in entries %}
+	<tr>
+		<td>{{ entry.name }}</td>
+		<td>{{ entry.start }}</td>
+		<td>{{ entry.end }}</td>
+		<td><a class="btn btn-info" href="{{ url_for('events.show_info', id=entry.eventid) }}">Info</a></td>
+		<td><a class="btn btn-info" href="#">Edit</a></td>
+	</tr>
+	{% endfor %}
 </table>
 {% endblock %}

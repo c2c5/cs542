@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Event Infomation{% endblock %}
+{% block header %}
+{% for entry in entries %}
+  <h1>{{ entry.name }}</h1>
+{% endfor %}
+{% endblock %}
+
+{% block page %}
+{% for entry in entries %}
+<div class="card">
+  <div class="card-header">Description</div>
+  <div class="card-body">
+    {{ entry.description }}
+  </div>
+    <div class="card-header">Strat Time</div>
+  <div class="card-body">
+    {{ entry.start }}
+  </div>
+    <div class="card-header">End Time</div>
+  <div class="card-body">
+    {{ entry.end }}
+  </div>
+    <div class="card-header">Max Participants</div>
+  <div class="card-body">
+    {{ entry.max_participants }}
+  </div>
+    <div class="card-header">Cost</div>
+  <div class="card-body">
+    {{ entry.cost }}
+  </div>
+    <div class="card-header">Paid Members Only?</div>
+  <div class="card-body">
+    {{ entry.paid_members_only }}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
