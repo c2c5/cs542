@@ -22,20 +22,37 @@
                 <div class="collapse navbar-collapse" id="navbarsExample07">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{{ url_for('home') }}"> {{ octicon("home", style="fill:#CCC") }} Home</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+                            Events</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ url_for('events.show')}}">Schedule</a>
+                            <a class="dropdown-item" >My Events</a>
+                            {% if 'admin' in current_user_roles() or 'setter' in current_user_roles() %}
+                            <a class="dropdown-item" href="{{ url_for('events.create')}}">Create</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('accounts.admin')}}">{{ octicon("person", style="fill:#CCC") }} User Admin</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     {% if current_user() is none %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('accounts.signin') }}">Log In</a>
+                        <a class="nav-link" href="{{ url_for('accounts.signin') }}">{{ octicon("sign-in", style="fill:#CCC") }} Log In</a>
                     </li>
                     {% else %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ current_user()['student_name'] }}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{{ url_for('accounts.show') }}">User Info</a>
-                            <a class="dropdown-item" href="{{ url_for('accounts.signout') }}">Logout</a>
+                            <a class="dropdown-item" href="{{ url_for('accounts.show') }}">{{ octicon("dashboard") }} Dashboard</a>
+                            <a class="dropdown-item" href="{{ url_for('accounts.edit', id=current_user()['userid']) }}">{{ octicon("gear") }} Account Settings</a>
+                            <a class="dropdown-item" href="{{ url_for('accounts.signout') }}"> {{ octicon("sign-out") }} Logout</a>
                         </div>
                     </li>
                     {% endif %}
