@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Create Events{% endblock %}
+{% block title %}Event Infomation{% endblock %}
 {% block header %}
 <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
@@ -7,7 +7,7 @@
 <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment-with-locales.js"></script>
 <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  <h1>Create Events</h1>
+  <h1>Edit Event</h1>
 {% endblock %}
 
 {% block page %}
@@ -30,18 +30,19 @@ $(function () {
 });
 </script>
 <form method="post">
+	{% for entry in entries %}
 	<div class="form-group">
 		<label for='event_name'>Events Name</label>
-		<input type="text" name="event_name" id="event_name" class="form-control" placeholder="event name" value="{{name}}">
+		<input type="text" name="event_name" id="event_name" class="form-control" value={{entry.name}}>
 	</div>
 	<div class="form-group">
 		<label for='description'>Description</label>
-		<textarea name="description" id="description" class="form-control" placeholder="description" value="{{description}}" rows="3"></textarea>
+		<input type="text" name="description" id="description" class="form-control" value={{entry.description}}></input>
 	</div>
 	<div class="form-group">
 		<label for="start">Start Time</label>
 		<div class="input-group date" id="datetimepicker1">
-			<input type="text" name="start" id="start" class="form-control" placeholder="2019-01-01 00:00:00" value="{{start}}">
+			<input type="text" name="start" id="start" class="form-control" value={{entry.start}}>
 			<span class="input-group-addon">
 				<span class="glyphicon glyphicon-calendar"></span>
 			</span>
@@ -50,7 +51,7 @@ $(function () {
 	<div class="form-group">
 		<label for="end">End Time</label>
 		<div class="input-group date" id="datetimepicker2">
-			<input type="text" name="end" id="end" class="form-control" placeholder="2019-01-01 00:00:00" value="{{end}}">
+			<input type="text" name="end" id="end" class="form-control" value="{{entry.end}}">
 			<span class="input-group-addon">
 				<span class="glyphicon glyphicon-calendar"></span>
 			</span>
@@ -58,13 +59,14 @@ $(function () {
 	</div>
 	<div class="form-group">
 		<label for="max_participants">Max Participants</label>
-		<input type="text" name="max_participants" id="max_participants" class="form-control" placeholder="100" value="{{max}}">
+		<input type="text" name="max_participants" id="max_participants" class="form-control" value="{{entry.max_participants}}">
 	</div>
 	<div class="form-group">
 		<label for="cost">Cost</label>
-		<input type="text" name="cost" id="cost" class="form-control" placeholder="50" value="{{cost}}">
+		<input type="text" name="cost" id="cost" class="form-control" value="{{entry.cost}}">
 	</div>
 	<label for="PMO">Paid Member Only?</label>
+	{% if entry.paid_members_only == 1 %}
 	<div class="radio">
 		<label for="PMO_Yes">
 				<input type="radio" name="PMO_Options" id="yes" value=1 checked>Yes
@@ -75,16 +77,29 @@ $(function () {
 				<input type="radio" name="PMO_Options" id="no" value=0>No
 		</label>
 	</div>
+	{% else %}
+	<div class="radio">
+		<label for="PMO_Yes">
+				<input type="radio" name="PMO_Options" id="yes" value=1>Yes
+		</label>
+	</div>
+	<div class="radio">
+		<label for="PMO_NO">
+				<input type="radio" name="PMO_Options" id="no" value=0 checked>No
+		</label>
+	</div>
+	{% endif %}
 	<div class="form-group">
 		<label for"opener">Opener</label>
 		<select class="form-control" name="opener">
 			<option value="None">Select an Opener</option>
-			{% for entry in entries %}
-			<option value="{{ entry.userid }}">{{ entry.student_name }}</option>
+			{% for opener in openers %}
+			<option value="{{ opener.userid }}">{{ opener.student_name }}</option>
 			{% endfor %}
 		</select>
 	</div>
 	<button type="submit" class="btn btn-primary">Create</button>
+	{% endfor %}
 </form>
 
 {% endblock %}
