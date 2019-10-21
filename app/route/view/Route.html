@@ -1,0 +1,31 @@
+{%extends 'base.html' %}
+
+<h1> {% block title %}Routes{% endblock %} </h1>
+
+{% block header %}
+
+<div>
+    <center>
+       <font size="8" face="Verdana" color="black" >Routes</font>
+    </center>
+</div>
+<hr style= "border:3px solid black" size=1 >
+    {% for route in routes%}
+        <p style="line-height:70%">
+            <a href="{{ url_for('routes.RoutePicture') }}?routeid={{ route['routeid'] }}">
+                <font size="6" color="red">{{ route['routeid'] }}</font>
+            </a>
+            <br>
+            <font size="3" color="black" style="word-spacing: 10px" face="serif">{{ octicon("rocket") }} Difficulty {{ route['difficulty'] }}</font>
+            <br>
+            <div align="right">
+                <font size="3" color="black" style="word-spacing: 50px">Set_by  {{ route['set_by'] }}</font>
+            </div>
+        </p>
+<hr width="1120" align="left" style="border: 1px solid black">
+    {% endfor %}
+{% endblock %}
+
+
+
+

@@ -21,8 +21,11 @@
         
                 <div class="collapse navbar-collapse" id="navbarsExample07">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                     <li class="nav-item active">
                         <a class="nav-link" href="{{ url_for('home') }}"> {{ octicon("home", style="fill:#CCC") }} Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('routes.Route') }}">{{ octicon("book", style="fill:#CCC") }} Routes<span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
@@ -57,6 +60,7 @@
                     </li>
                     {% endif %}
                 </ul>
+                </div>
             </div>
         </nav>
         <div class="container">
