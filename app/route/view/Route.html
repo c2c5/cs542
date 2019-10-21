@@ -12,7 +12,7 @@
 <hr style= "border:3px solid black" size=1 >
     {% for route in routes%}
         <p style="line-height:70%">
-            <a href="{{ url_for('accounts.RoutePicture') }}?routeid={{ route['routeid'] }}">
+            <a href="{{ url_for('routes.RoutePicture') }}?routeid={{ route['routeid'] }}">
                 <font size="6" color="red">{{ route['routeid'] }}</font>
             </a>
             <br>
