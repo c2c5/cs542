@@ -6,24 +6,96 @@
 
 {% block page %}
 
-<form method="get">
-    <div class="form-group">
-      <div class="row">
-          <div class="input-group col col-md-9"></div>
-        <div class="input-group col col-md-3">
-            <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
-            <div class="input-group-append">
-              <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
-            </div>
+<div class="form-group">
+  <div class="row">
+    <div class="input-group col col-md-6"></div>
+    <div class=" col col-md-4">
+      <form method="get">
+        <div class="input-group">
+          {% for arg, val in request.args.items() %}
+          {% if (arg != "name") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+          {% endfor %}
+          <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
+          </div>
         </div>
+      </form>
+    </div>
+    <div class="dropdown col-md-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right">
+        {{ octicon("zap", style="fill:white") }} Filter
+      </button>
+      <div class="dropdown-menu">
+        <table class="table">
+          {% for filt in ["paid", "waiver", "cpr", "setter", "opener", "admin"] %}
+          <tr>
+            <td style="border:none">{{ filt.capitalize() }}</td>
+            <td style="border:none">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <form method="GET">
+                  <input style="display:none" type="hidden" name="{{filt}}" value="1" />
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt and arg != "page") %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-success">{{ octicon("check", style="fill:white") }}</button>
+                </form>
+                <form method="GET">
+                  <input style="display:none" type="hidden" name="{{filt}}" value="0" />
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt and arg != "page") %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-danger">{{ octicon("x", style="fill:white") }}</button>
+                </form>
+                <!--<form method="GET">
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt) %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-secondary">{{ octicon("dash", style="fill:white") }}</button>
+                </form>-->
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
       </div>
     </div>
+  </div>
+</div>
+
+{% if (request.args.keys()|reject("==", "page")|list)|length > 0 %}
+<p><strong>Active Filters</strong> <span class="text-muted"><small>Click on a filter to clear it</small></span></p>
+{% for filt, filtval in request.args.items() %}
+  {% if filtval != "" and filt != "page" %}
+  <form method="GET" style="display: inline-block;">
+    {% for arg, val in request.args.items() %}
+      {% if (arg != filt and arg != "page") %}
+      <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="btn btn-info" style="display: inline-block;">{{ octicon("tag", style="fill:white") }} {{filt.capitalize()}}: {{ "Yes" if filtval=="1" else ( filtval if filtval !="0" else "No") }}</button>
+  </form>
+  {% endif %}
+{% endfor %}
+<form method="GET" style="display: inline-block;">
+  <button type="submit" class="btn btn-danger" style="display: inline-block;">{{ octicon("x", style="fill:white") }} Clear all filters</button>
 </form>
+<br /><br />
+{% endif %}
 
 <table class="table">
   <tr>
     <th>Student Name</th>
-    <th>Membership dues paid</th>
+    <th>Join Date</th>
+    <th>Membership Paid</th>
     <th>Waiver signed</th>
     <th>CPR Certified</th>
     <th>Setter?</th>
@@ -34,80 +106,167 @@
     {% endif %}
   </tr>
   {% for user in userlist %}
-  <tr>
+  <tr id="user-{{ user['userid'] }}">
     <td>{{ user["student_name"] }}</td>
-
-    <!-- User Payments -->
+    <td>{{ user["join_date"] }}</td>
     <td>
-      {% if user["paid"] == 0 %}
-        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
-          <a class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</a>
-        {% else %}
-          <span class="text-danger">Not Paid</span>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["paid"] == 0 %}
+          {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+            <input type="hidden" name="paid" value="1"/>
+            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</button>
+          {% else %}
+            <span class="text-danger">Not Paid</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="paid" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</button>
+          {% else %}
+            <span class="text-success">Paid</span>
+          {% endif %}
         {% endif %}
-      {% else %}        
-        {% if 'admin' in current_user_roles() %}
-          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</a>
-        {% else %}
-          <span class="text-success">Paid</span>
-        {% endif %}
-      {% endif %}
+      </form>
     </td>
     <td>
-      {% if user["waiver"] == 0 %}
-        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
-          <a class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Not Signed</a>
-        {% else %}
-          <span class="text-danger">Not Signed</span>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["waiver"] == 0 %}
+          {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
+            <input type="hidden" name="waiver" value="1"/>
+            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Not Signed</button>
+          {% else %}
+            <span class="text-danger">Not Signed</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="waiver" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</button>
+          {% else %}
+            <span class="text-success">Signed</span>
+          {% endif %}
         {% endif %}
-      {% else %}        
-        {% if 'admin' in current_user_roles() %}
-          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</a>
-        {% else %}
-          <span class="text-success">Signed</span>
-        {% endif %}
-      {% endif %}
+      </form>
     </td>
     <td>
-      {% if user["cpr_certified"] == 0 %}
-        {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
-          <a class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Not Certified</a>
-        {% else %}
-          <span class="text-secondary">Not Signed</span>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["cpr_certified"] == 0 %}
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="cpr_certified" value="1"/>
+            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Not Certified</button>
+          {% else %}
+            <span class="text-secondary">Not Certified</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="cpr_certified" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</button>
+          {% else %}
+            <span class="text-success">Certified</span>
+          {% endif %}
         {% endif %}
-      {% else %}        
-        {% if 'admin' in current_user_roles() %}
-          <a class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</a>
-        {% else %}
-          <span class="text-success">Signed</span>
-        {% endif %}
-      {% endif %}
+      </form>
     </td>
+    {% for role in ["setter", "opener", "admin"] %}
     <td>
-      {% if "setter" in user["roles"] %}
-        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
+      {% if 'admin' in current_user_roles() %}
+        <form method="post">
+          <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+          {% if role in user["roles"] %}
+            <input type="hidden" name="{{ role }}" value="0"/>
+            <button type="submit" class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</button>
+          {% else %}
+            <input type="hidden" name="{{ role }}" value="1"/>
+            <button type="submit" class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</button>
+          {% endif %}
+        </form>
       {% else %}
-        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
+        {% if role in user["roles"] %}
+          {{ octicon("check") }}
+        {% else %}
+          {{ octicon("x") }}
+        {% endif %}
       {% endif %}
     </td>
-    <td>
-        {% if "opener" in user["roles"] %}
-        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
-      {% else %}
-        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
-      {% endif %}
-    </td>
-    <td>
-      {% if "admin" in user["roles"] %}
-        <a class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</a>
-      {% else %}
-        <a class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</a>
-      {% endif %}
-    </td>
+    {% endfor %}
     {% if 'admin' in current_user_roles() %}
-      <td><a class="btn btn-danger" href="#">{{ octicon("trashcan", style="fill:white") }}</a></td>
+      <td>
+        <button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+        <a class="btn btn-secondary" href="{{ url_for('accounts.edit', id=user['userid']) }}">{{ octicon("pencil", style="fill:white") }}</a>
+      </td>
     {% endif %}
   </tr>
   {% endfor %}
 </table>
+<div style="text-align: center; width:100%; display:block">
+  <nav style="display: inline-block;">
+    <ul class="pagination">
+      <form method="GET">
+        {% for arg, val in request.args.items() %}
+          {% if (arg != "page") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+        {% endfor %}
+        <input style="display:none" type="hidden" name="page" value="{{ page-1 }}" />
+        <li class="page-item {{ 'disabled' if page==0 }} "><button type="submit" class="page-link" href="#">&laquo;</button></li>
+      </form>
+      {% for p in pages %}
+        <form method="GET">
+          {% for arg, val in request.args.items() %}
+            {% if (arg != "page") %}
+            <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+            {% endif %}
+          {% endfor %}
+          <input style="display:none" type="hidden" name="page" value="{{ p }}" />
+          <li class="page-item {{ 'active' if page==p }}"><button type="submit" class="page-link" href="#">{{p+1}}</button></li>
+        </form>
+      {% endfor %}
+      <form method="GET">
+        {% for arg, val in request.args.items() %}
+          {% if (arg != "page") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+        {% endfor %}
+        <input style="display:none" type="hidden" name="page" value="{{ page+1 }}" />
+        <li class="page-item {{ 'disabled' if page==maxpage }} "><button type="submit" class="page-link" href="#">&raquo;</button></li>
+      </form>
+    </ul>
+  </nav>
+  <br />
+  <p>Showing {{page*limit+1 if count > 0 else 0}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p>
+</div>
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModal">Confirm User Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <span id="userNameToDelete"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <form method="post">
+          <input type="hidden" name="delete" value="" id="confirm_user_id1"/>
+          <input type="hidden" name="userid" value="" id="confirm_user_id2"/>
+          <button type="submit" class="btn btn-danger">Yes, Really Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).on("click", "#deleteUser", function () {
+    var id = $(this).parent().closest('tr').attr("id").split("-")[1]
+    var name = $(this).parent().closest('tr').children(1).html()
+    $("#confirm_user_id1").val(id)
+    $("#confirm_user_id2").val(id)
+    $("#userNameToDelete").html(name)
+ });
+</script>
 {% endblock %}
