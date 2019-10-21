@@ -36,11 +36,13 @@ def signin():
     elif (request.method == "POST"):
         db = database.get_db()
         with db.cursor() as cursor:
-            studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            ##studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            studentIDHash = request.form["studentID"]
             get_user_login = "SELECT password_hash, userid, student_name FROM User WHERE student_id=%s;"
             cursor.execute(get_user_login, studentIDHash)
             result = cursor.fetchone()
-            if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
+            ##if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
+            if (cursor.rowcount == 1 and request.form["password"] == result['password_hash']):
                 ## User successfuly authenticated, make the session for the user.
 
                 # Delte any old session that exists
@@ -93,10 +95,12 @@ def signup():
         db = database.get_db()
         with db.cursor() as cursor:
             salt = bcrypt.gensalt()
-            studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            ##studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
+            studentIDHash = request.form["studentID"]
             add_user_query = "INSERT INTO User (student_id, student_name, join_date, password_hash) VALUES " + \
                              "(%s, %s, CURDATE(), %s);"
-            cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
+            ##cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
+            cursor.execute(add_user_query, (studentIDHash, request.form["name"], request.form["password"]))
             if (cursor.rowcount == 1):
                 db.commit()
                 flash('Created user account', 'success')
@@ -201,7 +205,7 @@ def admin():
                 return redirect(url_for('accounts.admin', **request.args))
             else:
                 abort(403)
-        
+
         if ( 'admin' in current_user_roles() ):
             for attr in ["setter", "opener", "admin"]:
                 if attr in request.form:
@@ -277,6 +281,7 @@ def edit(id):
                 else:
                    flash("Incorrect Password or Unauthorized", "danger")
                    return redirect(url_for('accounts.edit', id=id, **request.args))
+
         elif ("name" in request.form):
             with db.cursor() as cursor:
                 userdel = "UPDATE UserData set student_name=%s WHERE userid=%s"
@@ -286,3 +291,12 @@ def edit(id):
             return redirect(url_for('accounts.edit', id=id, **request.args))
         else:
             abort(400)
+
+@accounts.route('/scores')
+def Scores():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_scores_query = "SELECT eventid, score from TournamentParticipants"
+        cursor.execute(get_scores_query)
+        result = cursor.fetchall()
+    return render_template('TournamentParticipants.html', records=result)
