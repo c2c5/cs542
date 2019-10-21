@@ -1,4 +1,5 @@
 from util import database
+from functools import wraps
 import flask
 
 CS542_TOKEN_COOKIE = 'CS542_TOKEN_COOKIE'
@@ -22,6 +23,8 @@ def current_user():
 
 def current_user_roles():
     if flask.has_request_context() and CS542_TOKEN_COOKIE in flask.request.cookies:
+        if (current_user() is None):
+            return []
         return current_user()["roles"].split(", ")
     else:
         return []
@@ -34,3 +37,29 @@ def invalidate_token(token):
         if (cursor.rowcount == 1):
             db.commit()
         return (cursor.rowcount == 1)
+
+def require_login(api_method):
+    @wraps(api_method)
+
+    def check_login(*args, **kwargs):
+        if (current_user() is None):
+            return flask.redirect(flask.url_for('accounts.signin', redirect=flask.request.path))
+        else:
+            return api_method(*args, **kwargs) 
+
+    return check_login
+
+def require_oneof_roles(*argv):
+    def real_decorator(api_method):
+        @wraps(api_method)
+        def check_login(*args, **kwargs):
+            if (current_user() is None):
+                return flask.redirect(flask.url_for('accounts.signin', redirect=flask.request.path))
+            else:
+                for arg in argv:
+                    if (arg in current_user_roles()):
+                        return api_method(*args, **kwargs) 
+                return flask.abort(403)
+
+        return check_login
+    return real_decorator
