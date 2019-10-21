@@ -26,12 +26,12 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
-                            Events</a>
+                            {{ octicon("jersey", style="fill:#CCC") }} Events</a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{{ url_for('events.show')}}">Schedule</a>
-                            <a class="dropdown-item" >My Events</a>
+                            <a class="dropdown-item" href="{{ url_for('events.show')}}">{{ octicon("calendar", style="fill:#000") }} Schedule</a>
+                            <a class="dropdown-item" >{{ octicon("bookmark", style="fill:#000") }} My Events</a>
                             {% if 'admin' in current_user_roles() or 'setter' in current_user_roles() %}
-                            <a class="dropdown-item" href="{{ url_for('events.create')}}">Create</a>
+                            <a class="dropdown-item" href="{{ url_for('events.create')}}">{{ octicon("pencil", style="fill:#000") }} Create</a>
                             {% endif %}
                         </div>
                     </li>
