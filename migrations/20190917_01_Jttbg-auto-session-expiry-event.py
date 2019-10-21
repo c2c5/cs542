@@ -10,6 +10,6 @@ steps = [
 step("""CREATE EVENT expireloginsession
 ON SCHEDULE EVERY 1 HOUR
 DO
-DELETE FROM LoginSession L
-WHERE (NOW() - L.start_time) > 86400;""")
+DELETE FROM LoginSession
+WHERE (NOW() - start_time) > 86400;""")
 ]
