@@ -304,7 +304,7 @@ def edit(id):
 def Route():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_routes_query = "SELECT routeid, set_by from Route"
+        get_routes_query = "SELECT routeid, set_by, difficulty from Route"
         cursor.execute(get_routes_query)
         result = cursor.fetchall()
     return render_template('Route.html', routes=result)

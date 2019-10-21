@@ -10,16 +10,19 @@
     </center>
 </div>
 <hr style= "border:3px solid black" size=1 >
-
     {% for route in routes%}
         <p style="line-height:70%">
             <a href="{{ url_for('accounts.RoutePicture') }}?routeid={{ route['routeid'] }}">
-                <font size="6" color="black">{{ route['routeid'] }}</font>
+                <font size="6" color="red">{{ route['routeid'] }}</font>
             </a>
             <br>
-            <font size="3" color="black" style="word-spacing: 50px">Difficulty {{ route['set_by'] }}</font>
+            <font size="3" color="black" style="word-spacing: 10px" face="serif">{{ octicon("rocket") }} Difficulty {{ route['difficulty'] }}</font>
+            <br>
+            <div align="right">
+                <font size="3" color="black" style="word-spacing: 50px">Set_by  {{ route['set_by'] }}</font>
+            </div>
         </p>
-    <hr width="500" align="left" style="border: 1px solid black">
+<hr width="1120" align="left" style="border: 1px solid black">
     {% endfor %}
 {% endblock %}
 

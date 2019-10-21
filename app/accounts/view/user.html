@@ -8,6 +8,7 @@
 <p>{{ user["student_name"] }} belongs to the following groups:</p>
 <ul>
   {% for role in current_user_roles() %}
+
   <li>
       {% if role == "setter" %}
         <a href="{{ url_for('accounts.SetRoutes') }}">
@@ -15,6 +16,9 @@
         </a>
       {% endif %}
   </li>
+    <li>
+      <font size="4" color="black">{{ role }}</font>
+   </li>
   {% endfor %}
 </ul>
 {% else %}
