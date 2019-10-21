@@ -7,6 +7,7 @@ from app.accounts.session import current_user, current_user_roles
 # Blueprints
 from app.accounts import accounts
 from app.events import events
+from app.checkin import checkin
 
 app = Flask(__name__)
 app.secret_key = 'pWMZ5WDbm3qFo73LyL36ZnFEqATI212t'
@@ -20,6 +21,7 @@ app.jinja_env.globals.update(octicon=get_octicon_svg)
 
 app.register_blueprint(accounts, url_prefix='/user')
 app.register_blueprint(events, url_prefix='/event')
+app.register_blueprint(checkin, url_prefix='/checkin')
 
 @app.route('/')
 def home():
