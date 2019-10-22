@@ -33,6 +33,12 @@
   <div class="card-body">
     {{ entry.paid_members_only }}
   </div>
+  <div class="card-header">Opener</div>
+  <div class="card-body">
+  	{% for opener in openers %}
+  	{{ opener.student_name }}
+  	{% endfor %}
+  </div>
 </div>
 {% endfor %}
 {% endblock %}
