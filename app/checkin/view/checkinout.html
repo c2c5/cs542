@@ -16,9 +16,13 @@
 <small class="text-muted">Don't have an account? <a href="{{ url_for('accounts.signup') }}">Sign Up</a>.</small>
 
 <br>
+
+<p>{{re}}</p>
+
 <br>
 <h1>People who have signed-in to the event </h1>
 <small class="text-muted">Click <a href="{{ url_for('checkin.checkinout') }}">here</a> to refresh the list.</small>
+
 
 <hr style= "border:3px solid black" size=1 >
 
@@ -27,12 +31,10 @@
         <table align="left" border="1">
             <tr>
                     <th style="width:200px" align="Center">Student Name</th>
-                    <th style="width:200px" align="Center">Student ID</th>
               </tr>
             {% for record in records %}
               <tr>
                     <td style="width:200px" align="left">{{ record['Name'] }}</td>
-                    <td style="width:200px" align="left">{{ record['ID'] }}</td>
               </tr>
             {% endfor %}
         </table>
