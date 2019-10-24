@@ -36,13 +36,11 @@ def signin():
     elif (request.method == "POST"):
         db = database.get_db()
         with db.cursor() as cursor:
-            ##studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
-            studentIDHash = request.form["studentID"]
+            studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
             get_user_login = "SELECT password_hash, userid, student_name FROM User WHERE student_id=%s;"
             cursor.execute(get_user_login, studentIDHash)
             result = cursor.fetchone()
-            ##if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
-            if (cursor.rowcount == 1 and request.form["password"] == result['password_hash']):
+            if (cursor.rowcount == 1 and bcrypt.checkpw(request.form["password"].encode('utf-8'), result['password_hash'].encode('utf-8'))):
                 ## User successfuly authenticated, make the session for the user.
 
                 # Delte any old session that exists
@@ -95,12 +93,10 @@ def signup():
         db = database.get_db()
         with db.cursor() as cursor:
             salt = bcrypt.gensalt()
-            ##studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
-            studentIDHash = request.form["studentID"]
+            studentIDHash = hashlib.sha512(request.form["studentID"].encode('utf-8')).hexdigest()
             add_user_query = "INSERT INTO User (student_id, student_name, join_date, password_hash) VALUES " + \
                              "(%s, %s, CURDATE(), %s);"
-            ##cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
-            cursor.execute(add_user_query, (studentIDHash, request.form["name"], request.form["password"]))
+            cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
             if (cursor.rowcount == 1):
                 db.commit()
                 flash('Created user account', 'success')
