@@ -201,7 +201,7 @@ def admin():
                 return redirect(url_for('accounts.admin', **request.args))
             else:
                 abort(403)
-        
+
         if ( 'admin' in current_user_roles() ):
             for attr in ["setter", "opener", "admin"]:
                 if attr in request.form:
@@ -277,6 +277,7 @@ def edit(id):
                 else:
                    flash("Incorrect Password or Unauthorized", "danger")
                    return redirect(url_for('accounts.edit', id=id, **request.args))
+
         elif ("name" in request.form):
             with db.cursor() as cursor:
                 userdel = "UPDATE UserData set student_name=%s WHERE userid=%s"
@@ -286,3 +287,12 @@ def edit(id):
             return redirect(url_for('accounts.edit', id=id, **request.args))
         else:
             abort(400)
+
+@accounts.route('/scores')
+def Scores():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_scores_query = "SELECT eventid, score from TournamentParticipants"
+        cursor.execute(get_scores_query)
+        result = cursor.fetchall()
+    return render_template('TournamentParticipants.html', records=result)

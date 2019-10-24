@@ -3,10 +3,24 @@
 <span class="navbar-toggler-icon"></span>
 </button>
 
-<div class="collapse navbar-collapse">
+<div class="collapse navbar-collapse" id="navbarsExample07">
 <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('home') }}"> {{ octicon("home", style="fill:#CCC") }} Home</a>
+    </li>
     <li class="nav-item">
-        <a class="nav-link" href="/">{{ octicon("home", style="fill:#CCC") }} Home</a>
+        <a class="nav-link" href="{{ url_for('routes.Route') }}">{{ octicon("book", style="fill:#CCC") }} Routes<span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+            {{ octicon("jersey", style="fill:#CCC") }} Events</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{{ url_for('events.show')}}">{{ octicon("calendar", style="fill:#000") }} Schedule</a>
+            <a class="dropdown-item" >{{ octicon("bookmark", style="fill:#000") }} My Events</a>
+            {% if 'admin' in current_user_roles() or 'setter' in current_user_roles() %}
+            <a class="dropdown-item" href="{{ url_for('events.create')}}">{{ octicon("pencil", style="fill:#000") }} Create</a>
+            {% endif %}
+        </div>
     </li>
     {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
         <li class="nav-item">
@@ -30,3 +44,4 @@
     </li>
     {% endif %}
 </ul>
+</div>

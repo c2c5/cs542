@@ -11,7 +11,7 @@
         <!--Extra Header Tags-->
         {% block head %}{% endblock %}
     </head>
-    <body>
+    <body {% block bodyattrs %}{% endblock %}>
         {% block page %}{% endblock %}
     </body>
 </html>

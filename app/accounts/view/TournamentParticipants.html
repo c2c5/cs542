@@ -1,0 +1,30 @@
+{%extends 'base.html' %}
+
+<h1> {% block title %}Tournament{% endblock %} </h1>
+
+{% block header %}
+
+<div>
+    <center>
+       <font size="8" face="Verdana" color="black" >YourScores</font>
+    </center>
+</div>
+
+<hr style= "border:3px solid black" size=1 >
+<center>
+    {% for record in records %}
+    <font  size="5">
+        <table border="1">
+            <tr>
+                    <td style="width:200px" align="center">Event</td>
+                    <td style="width:200px" align="center">Score</td>
+              </tr>
+              <tr>
+                    <td style="width:200px" align="center">{{ record['eventid'] }}</td>
+                    <td style="width:200px" align="center">{{ record['score'] }}</td>
+              </tr>
+        </table>
+    </font>
+    {% endfor %}
+</center>
+{% endblock %}

@@ -1,0 +1,43 @@
+{%extends 'base.html' %}
+
+<h1> {% block title %}Checkinout{% endblock %} </h1>
+
+{% block page %}
+<h1>Checkin/out</h1>
+<form method="post">
+    <hr>
+        <div class="form-group">
+            <label for="StudentID"><b>StudentID</b></label>
+            <input type="text" class="form-control" id="StudentID" placeholder="StudentID" name="StudentID" required>
+        </div>
+
+    <button type="submit" class="btn btn-primary">Checkin/out</button>
+</form>
+<small class="text-muted">Don't have an account? <a href="{{ url_for('accounts.signup') }}">Sign Up</a>.</small>
+
+<br>
+<br>
+<h1>People who have signed-in to the event </h1>
+<small class="text-muted">Click <a href="{{ url_for('checkin.checkinout') }}">here</a> to refresh the list.</small>
+
+<hr style= "border:3px solid black" size=1 >
+
+
+    <font  size="5">
+        <table align="left" border="1">
+            <tr>
+                    <th style="width:200px" align="Center">Student Name</th>
+                    <th style="width:200px" align="Center">Student ID</th>
+              </tr>
+            {% for record in records %}
+              <tr>
+                    <td style="width:200px" align="left">{{ record['Name'] }}</td>
+                    <td style="width:200px" align="left">{{ record['ID'] }}</td>
+              </tr>
+            {% endfor %}
+        </table>
+    </font>
+
+
+
+{% endblock %}
