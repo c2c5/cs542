@@ -11,7 +11,7 @@ step("""CREATE TRIGGER logout_upon_password_change AFTER UPDATE ON cs542.User
 FOR EACH ROW
 BEGIN
 	IF NOT (NEW.password_hash <=> OLD.password_hash) THEN
-		DELETE FROM LoginSession L WHERE L.userid=NEW.userid;
+		DELETE FROM LoginSession WHERE userid=NEW.userid;
     END IF;
 END;""")
 ]

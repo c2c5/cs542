@@ -28,7 +28,10 @@ def show_info(id):
         get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only FROM event WHERE eventid=%s;"
         cursor.execute(get_event_info, id)
         entries = cursor.fetchall()
-        return render_template('event_info.html', entries=entries)
+        get_opener = "SELECT student_name FROM user AS u, event AS e WHERE u.userid = e.opener and e.eventid=%s;"
+        cursor.execute(get_opener, id)
+        openers = cursor.fetchall()
+        return render_template('event_info.html', entries=entries, openers=openers)
 
 @events.route('/edit/<id>', methods=["GET", "POST"])
 def edit(id):
@@ -48,14 +51,11 @@ def edit(id):
     else:
         db = database.get_db()
         with db.cursor() as cursor:
-            update_event = "UPDATE event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s " + \
-                "WHERE eventid=%s;"
-            print(request.form['event_name'], request.form['description'],
-                                             request.form['start'], request.form['end'], request.form['max_participants'],
-                                             request.form['cost'], request.form['PMO_Options'], id)
+            update_event = "UPDATE event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s, " + \
+                "opener=%s WHERE eventid=%s;"
             cursor.execute(update_event, (request.form['event_name'], request.form['description'],
                                              request.form['start'], request.form['end'], request.form['max_participants'],
-                                             request.form['cost'], request.form['PMO_Options'], id))
+                                             request.form['cost'], request.form['PMO_Options'], request.form['opener'], id))
             print(cursor.rowcount)
             if (cursor.rowcount == 1):
                 db.commit()
@@ -72,11 +72,11 @@ def create():
     if request.method == "POST":
         db = database.get_db()
         with db.cursor() as cursor:
-            add_event_query = "INSERT INTO event(name, description, start, end, max_participants, cost, paid_members_only) VALUES" + \
+            add_event_query = "INSERT INTO event(name, description, start, end, max_participants, cost, paid_members_only, opener) VALUES" + \
                               "(%s, %s, %s, %s, %s, %s, %s);"
             cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
                                              request.form['start'], request.form['end'], request.form['max_participants'],
-                                             request.form['cost'], request.form['PMO_Options']))
+                                             request.form['cost'], request.form['PMO_Options'], request.form['opener']))
             if (cursor.rowcount == 1):
                 db.commit()
                 flash('Created event', 'success')
