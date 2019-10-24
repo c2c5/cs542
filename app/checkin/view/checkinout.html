@@ -18,7 +18,9 @@
 <br>
 <br>
 <h1>People who have signed-in to the event </h1>
-<small class="text-muted">Click <a href="{{ url_for('checkin.checkinout') }}">here</a> to refresh the list.</small>
+{% for id in id %}
+<small class="text-muted">Click <a href="{{ url_for('checkin.checkinout', id=id) }}">here</a> to refresh the list.</small>
+{% endfor %}
 
 <hr style= "border:3px solid black" size=1 >
 

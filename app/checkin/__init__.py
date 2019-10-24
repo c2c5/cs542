@@ -58,7 +58,7 @@ def checkinout(id):
                 if (cursor.rowcount == 1):
                     db.commit()
                     flash('Successfully checked in', 'success')
-                return render_template('checkinout.html', records=result)
+                return render_template('checkinout.html', records=result, id=id)
 
             if count != 0:
                 add_end_query = "UPDATE TimeEntry SET end = CURRENT_TIMESTAMP() " +\
@@ -67,9 +67,9 @@ def checkinout(id):
                 if (cursor.rowcount == 1):
                     db.commit()
                     flash('Successfully checked out', 'success')
-                    return render_template('checkinout.html', records=result)
+                    return render_template('checkinout.html', records=result, id=id)
                 else:
                     flash('Something missing in the account', 'danger')
-                    return render_template('checkinout.html', records=result)
+                    return render_template('checkinout.html', records=result, id=id)
     else:
-        return render_template('checkinout.html', records=result)
+        return render_template('checkinout.html', records=result, id=id)
