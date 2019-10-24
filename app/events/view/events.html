@@ -18,6 +18,7 @@
 		<td>{{ entry.end }}</td>
 		<td><a class="btn btn-info" href="{{ url_for('events.show_info', id=entry.eventid) }}">Info</a></td>
 		<td><a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">Edit</a></td>
+		<td><a class="btn btn-info" href="{{ url_for('checkin.checkinout', id=entry.eventid) }}"></a></td>
 	</tr>
 	{% endfor %}
 </table>
