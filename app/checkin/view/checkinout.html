@@ -18,11 +18,10 @@
     <tr>
         <th>Signed-in Students</th>
     </tr>
-    {% for record in records %}
     <tr>
+        {% for record in records %}
         <td>{{ record['Name'] }}</td>
+        {% endfor %}
     </tr>
-    {% endfor %}
-</table>
 
 {% endblock %}
