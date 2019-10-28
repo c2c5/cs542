@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %} - WPI Cave</title>
+        {% assets "app_js" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+        {% assets "app_css" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+        <!--Extra Header Tags-->
+        {% block head %}{% endblock %}
+    </head>
+    <body {% block bodyattrs %}{% endblock %}>
+        {% block page %}{% endblock %}
+    </body>
+</html>
