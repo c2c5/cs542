@@ -17,13 +17,11 @@
         <table border="1">
             <tr>
                     <th style="width:200px" align="center">Student Name</th>
-                    <th style="width:200px" align="center">Student ID</th>
                     <th style="width:200px" align="center">TimeSpent (hour)</th>
               </tr>
             {% for record in records %}
               <tr>
                     <td style="width:200px" align="left">{{ record['Name'] }}</td>
-                    <td style="width:200px" align="left">{{ record['ID'] }}</td>
                     <td style="width:200px" align="left">{{ record['TimeSpent'] }}</td>
               </tr>
             {% endfor %}
