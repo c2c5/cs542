@@ -42,6 +42,36 @@
     </div>
     <div class="col-md-3">
       <h3>Upcoming Events</h3>
+      {% if events|length == 0 %}
+        <p class="text-muted">No events in the next 7 days</p>
+      {% endif %}
+      {% for event in events %}
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">{{ event.name }}
+              <div style="float:right">
+                {% if not event.paid_members_only %}
+                  <span class="badge badge-success">Free</span>
+                {% endif %} 
+                {% if event.tournament_result_unit is not none and event.tournament_result_ordering is not none %}
+                  <span class="badge badge-warning">{{ octicon("law") }} Tournament</span>
+                {% endif %}
+              </div>
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              {% if event.actual_start is not none %}
+                Event In Progress
+              {% elif event.start.date() == event.end.date() %}
+                {{ event.start.date().strftime("%a %b %-d") }} {{ event.start.time().strftime("%-I:%M %p") }} - {{ event.end.time().strftime("%-I:%M %p") }} 
+              {% else %}
+                {{ event.start.date().strftime("%a %b %-d") }} {{ event.start.time().strftime("%-I:%M %p") }} - {{ event.end.date().strftime("%a %b %-d") }} {{ event.end.time().strftime("%-I:%M %p") }}
+              {% endif %}
+            </h6>
+            <a href="{{ url_for('events.show_info', id=event.eventid) }}" class="card-link">More Info &raquo;</a>
+          </div>
+        </div>
+        <br />
+      {% endfor %}
     </div>
   </div>
 </div>

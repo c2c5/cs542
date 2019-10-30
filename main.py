@@ -28,8 +28,12 @@ app.register_blueprint(checkin, url_prefix='/checkin')
 
 @app.route('/')
 def home():
-    return render_template('home.html')
-
+    d = db.get_db()
+    with d.cursor() as cursor:
+        next_7_days = "SELECT * FROM event WHERE end >= CURRENT_TIMESTAMP AND end < DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 day) ORDER BY start;"
+        cursor.execute(next_7_days)
+        events = cursor.fetchall()
+    return render_template('home.html', events=events)
 
 if __name__ =="__main__":
     app.run(debug=True,port=8080)
