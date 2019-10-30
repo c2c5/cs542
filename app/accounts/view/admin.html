@@ -30,7 +30,7 @@
       </button>
       <div class="dropdown-menu">
         <table class="table">
-          {% for filt in ["paid", "waiver", "cpr", "setter", "opener", "admin"] %}
+          {% for filt in ["paid", "waiver", "cpr", "PE", "setter", "opener", "admin"] %}
           <tr>
             <td style="border:none">{{ filt.capitalize() }}</td>
             <td style="border:none">
@@ -98,6 +98,7 @@
     <th>Membership Paid</th>
     <th>Waiver signed</th>
     <th>CPR Certified</th>
+    <th>PE Credit?</th>
     <th>Setter?</th>
     <th>Opener?</th>
     <th>Admin?</th>
@@ -115,14 +116,14 @@
         {% if user["paid"] == 0 %}
           {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
             <input type="hidden" name="paid" value="1"/>
-            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</button>
+            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }}<br /> Not Paid</button>
           {% else %}
             <span class="text-danger">Not Paid</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="paid" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</button>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }}<br /> Paid</button>
           {% else %}
             <span class="text-success">Paid</span>
           {% endif %}
@@ -135,14 +136,14 @@
         {% if user["waiver"] == 0 %}
           {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
             <input type="hidden" name="waiver" value="1"/>
-            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Not Signed</button>
+            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }}<br /> Not Signed</button>
           {% else %}
             <span class="text-danger">Not Signed</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="waiver" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</button>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }}<br /> Signed</button>
           {% else %}
             <span class="text-success">Signed</span>
           {% endif %}
@@ -155,16 +156,36 @@
         {% if user["cpr_certified"] == 0 %}
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="cpr_certified" value="1"/>
-            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Not Certified</button>
+            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }}<br /> Not Certified</button>
           {% else %}
             <span class="text-secondary">Not Certified</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="cpr_certified" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</button>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }}<br /> Certified</button>
           {% else %}
             <span class="text-success">Certified</span>
+          {% endif %}
+        {% endif %}
+      </form>
+    </td>
+    <td>
+      <form method="post">
+        <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
+        {% if user["pe_credit"] == 0 %}
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="pe_credit" value="1"/>
+            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }}<br /> No PE Credit</button>
+          {% else %}
+            <span class="text-secondary">No PE Credit</span>
+          {% endif %}
+        {% else %}        
+          {% if 'admin' in current_user_roles() %}
+            <input type="hidden" name="pe_credit" value="0"/>
+            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }}<br /> PE Credit</button>
+          {% else %}
+            <span class="text-success">PE Credit</span>
           {% endif %}
         {% endif %}
       </form>

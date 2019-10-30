@@ -136,6 +136,8 @@ def admin():
                 query_conditions.append("waiver=%s" % db.escape(val))
             elif (arg == "cpr"):
                 query_conditions.append("cpr_certified=%s" % db.escape(val))
+            elif (arg == "PE"):
+                query_conditions.append("pe_credit=%s" % db.escape(val))
             elif (arg == "name"):
                 query_conditions.append("student_name LIKE %s" % db.escape("%" + val + "%"))
             elif (arg == "setter"):
@@ -187,7 +189,7 @@ def admin():
     elif request.method == "POST":
         param = None
         val = None
-        for attr in ["paid", "waiver", "cpr_certified"]:
+        for attr in ["paid", "waiver", "cpr_certified", "pe_credit"]:
             if attr in request.form:
                 param = attr
                 val = request.form[attr]

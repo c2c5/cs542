@@ -34,4 +34,54 @@
     </li>
 
 </ul>
+<hr />
+<!-- New Dashboard Layout Here-->
+<h1>Welcome, {{current_user().student_name}}</h1>
+<br />
+<div style="display:flex; flex-flow: row wrap; width: 100%; max-height:50vh">
+  <div class="col-md-6" style="padding:16px">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Membership Status</h5>
+        <br />
+        <table class="table">
+          <tr><th>Website Roles</th><td>
+            {% if current_user_roles()|length == 0 %}
+              Standard Member
+            {% endif %}
+            {{ current_user_roles()|join(', ') }}
+          </td></tr>
+          <tr><th>CPR Certification</th><td>{{ ("<span class='text-success'>Yes</span>" if current_user()["cpr_certified"] else "No")|safe }}</td></tr>
+          <tr><th>Enrolled for PE Credit</th><td>{{ "Yes" if current_user()["pe_credit"] else "No"}}</td></tr>
+          <tr><th>Waiver Signed</th><td>{{ ("<span class='text-success'>Yes</span>" if current_user()["waiver"] else "<span class='text-danger'>No</span>")|safe }}</td></tr>
+          <tr><th>Membership Fee Paid</th><td>{{ ("<span class='text-success'>Yes</span>" if current_user()["paid"] else "<span class='text-danger'>No</span>")|safe }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6" style="padding:16px">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Participation Overview</h5>
+        <p class="card-text">This pane will tell members how much they have attended and if they have any tournament results recently, they will be visible here</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6" style="padding:16px">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Your Upcoming Events</h5>
+        <p class="card-text">This pane will only be available to admins and openers. This will allow an opener to see what events they are opening for next</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6" style="padding:16px">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Reports</h5>
+        <p class="card-text">This pane will tell let admins see reports like PE participation</p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
