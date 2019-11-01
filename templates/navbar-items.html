@@ -11,6 +11,11 @@
     <li class="nav-item">
         <a class="nav-link" href="{{ url_for('routes.Route') }}">{{ octicon("book", style="fill:#CCC") }} Routes<span class="sr-only">(current)</span></a>
     </li>
+    {% if current_user() is none %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('events.show')}}">{{ octicon("calendar", style="fill:#CCC") }} Schedule</a>
+    </li>
+    {% else %}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
             {{ octicon("jersey", style="fill:#CCC") }} Events</a>
@@ -22,6 +27,7 @@
             {% endif %}
         </div>
     </li>
+    {% endif %}
     {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
         <li class="nav-item">
             <a class="nav-link" href="{{url_for('accounts.admin')}}">{{ octicon("person", style="fill:#CCC") }} User Admin</a>
