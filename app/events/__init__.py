@@ -5,21 +5,34 @@ from util import database
 
 events = Blueprint('events', __name__, template_folder='view')
 
-@events.route('/')
+@events.route('/', methods=["GET", "POST"])
 def show():
-    try:
-        user = current_user()
-        if (user is not None):
-            db = database.get_db()
-            with db.cursor() as cursor:
-                get_event = "SELECT eventid, name, start, end FROM event;"
-                cursor.execute(get_event)
-                entries = cursor.fetchall()
-                return render_template('events.html', entries=entries)
-        else:
-            return redirect(url_for('accounts.signup'))
-    except TemplateNotFound:
-        abort(500)
+    if request.method == "GET":
+        try:
+            user = current_user()
+            if (user is not None):
+                db = database.get_db()
+                with db.cursor() as cursor:
+                    get_event = "SELECT eventid, name, start, end, actual_start FROM event;"
+                    cursor.execute(get_event)
+                    entries = cursor.fetchall()
+                    return render_template('events.html', entries=entries)
+            else:
+                return redirect(url_for('accounts.signup'))
+        except TemplateNotFound:
+            abort(500)
+    else:
+        db = database.get_db()
+        with db.cursor() as cursor:
+            close_event = "UPDATE event SET actual_start=CURRENT_TIMESTAMP() WHERE eventid=%s;"
+            cursor.execute(close_event, request.form['eventid'])
+            if cursor.rowcount == 1:
+                db.commit()
+                flash('Event has been opened!', 'success')
+                return redirect(url_for('checkin.checkinout', id=request.form['eventid'], **request.args))
+            else:
+                flash('Event has not been opened successfully!', 'danger')
+                return redirect(url_for('events.show', **request.args))
 
 @events.route('/detail/<id>')
 def show_info(id):
@@ -56,10 +69,12 @@ def edit(id):
             cursor.execute(update_event, (request.form['event_name'], request.form['description'],
                                              request.form['start'], request.form['end'], request.form['max_participants'],
                                              request.form['cost'], request.form['PMO_Options'], request.form['opener'], id))
-            print(cursor.rowcount)
             if (cursor.rowcount == 1):
                 db.commit()
                 flash('Changed event infomation', 'success')
+                return redirect(url_for('events.show_info', id=id, **request.args))
+            else:
+                flash('Check if you insert the correct information', 'danger')
                 return redirect(url_for('events.show_info', id=id, **request.args))
 
 @events.route('/create', methods=["GET", "POST"])
@@ -89,3 +104,20 @@ def create():
             return render_template('create.html', entries=entries)
         except TemplateNotFound:
             abort(500)
+
+@events.route('/my_events')
+def show_my_events():
+    try:
+        user = current_user()
+        if (user is not None):
+            db = database.get_db()
+            with db.cursor() as cursor:
+                get_event = "SELECT e.name AS name, t.start AS start, t.end AS end, t.total_time AS total_time FROM " + \
+                            "timeentry AS t, event AS e WHERE e.eventid=t.eventid and t.userid=%s;"
+                cursor.execute(get_event, user['userid'])
+                entries = cursor.fetchall()
+                return render_template('my_events.html', entries=entries)
+        else:
+            return redirect(url_for('accounts.signup'))
+    except TemplateNotFound:
+        abort(500)
