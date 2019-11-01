@@ -4,23 +4,8 @@
 {% endblock %}
 
 {% block page %}
-    {% if current_user_roles() is not none %}
+{% if current_user_roles() is not none %}
 <p>{{ user["student_name"] }} belongs to the following groups:</p>
-<ul>
-  {% for role in current_user_roles() %}
-
-  <li>
-      {% if role == "setter" %}
-        <a href="{{ url_for('routes.SetRoutes') }}">
-            <font size="4" color="black">{{ role }}</font>
-        </a>
-      {% endif %}
-  </li>
-    <li>
-      <font size="4" color="black">{{ role }}</font>
-   </li>
-  {% endfor %}
-</ul>
 {% else %}
 <p>{{ user["student_name"] }} is a standard user and is not part of any groups</p>
 {% endif %}

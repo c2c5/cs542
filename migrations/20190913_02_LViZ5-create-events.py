@@ -8,7 +8,7 @@ __depends__ = {'20190913_01_rb2OO-create-users'}
 
 steps = [
     step(
-"""CREATE TABLE Event (
+"""CREATE TABLE event (
     eventid SMALLINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     max_participants TINYINT UNSIGNED,
     start DATETIME NOT NULL,
