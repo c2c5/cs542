@@ -76,11 +76,11 @@ $(function () {
 		</label>
 	</div>
 	<div class="form-group">
-		<label for"opener">Opener</label>
-		<select class="form-control" name="opener">
+		<label for="opener">Opener</label>
+		<select class="form-control" name="opener" id="opener">
 			<option value="None">Select an Opener</option>
 			{% for entry in entries %}
-			<option value="{{ entry.userid }}">{{ entry.student_name }}</option>
+			<option value="{{ entry['userid'] }}">{{ entry.student_name }}</option>
 			{% endfor %}
 		</select>
 	</div>

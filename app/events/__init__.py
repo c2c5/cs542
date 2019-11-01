@@ -2,24 +2,34 @@ from flask import Blueprint, render_template, redirect, abort, url_for, request,
 from app.accounts.session import current_user
 from jinja2 import TemplateNotFound
 from util import database
+import pymysql
 
 events = Blueprint('events', __name__, template_folder='view')
 
-@events.route('/')
+@events.route('/', methods=["GET", "POST"])
 def show():
-    try:
-        user = current_user()
-        if (user is not None):
+    if request.method == "GET":
+        try:
             db = database.get_db()
             with db.cursor() as cursor:
-                get_event = "SELECT eventid, name, start, end FROM event;"
+                get_event = "SELECT eventid, name, start, end, actual_end, opener FROM event;"
                 cursor.execute(get_event)
                 entries = cursor.fetchall()
-                return render_template('events.html', entries=entries)
-        else:
-            return redirect(url_for('accounts.signup'))
-    except TemplateNotFound:
-        abort(500)
+            return render_template('events.html', entries=entries)
+        except TemplateNotFound:
+            abort(500)
+    else:
+        db = database.get_db()
+        with db.cursor() as cursor:
+            close_event = "UPDATE event SET actual_start=CURRENT_TIMESTAMP() WHERE eventid=%s;"
+            cursor.execute(close_event, request.form['eventid'])
+            if cursor.rowcount == 1:
+                db.commit()
+                flash('Event has been opened!', 'success')
+                return redirect(url_for('checkin.checkinout', id=request.form['eventid'], **request.args))
+            else:
+                flash('Event has not been opened successfully!', 'danger')
+                return redirect(url_for('events.show', **request.args))
 
 @events.route('/detail/<id>')
 def show_info(id):
@@ -41,7 +51,7 @@ def edit(id):
             get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only FROM event WHERE eventid=%s;"
             cursor.execute(get_event_info, id)
             entries = cursor.fetchall()
-            get_opener = "SELECT userid, student_name from userdatawithrole where roles = 'opener' or roles = 'admin'"
+            get_opener = "SELECT userid, student_name from userdatawithrole where roles LIKE '%opener%'"
             cursor.execute(get_opener)
             openers = cursor.fetchall()
         try:
@@ -49,43 +59,70 @@ def edit(id):
         except TemplateNotFound:
             abort(500)
     else:
-        db = database.get_db()
-        with db.cursor() as cursor:
-            update_event = "UPDATE event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s, " + \
-                "opener=%s WHERE eventid=%s;"
-            cursor.execute(update_event, (request.form['event_name'], request.form['description'],
-                                             request.form['start'], request.form['end'], request.form['max_participants'],
-                                             request.form['cost'], request.form['PMO_Options'], request.form['opener'], id))
-            print(cursor.rowcount)
-            if (cursor.rowcount == 1):
-                db.commit()
-                flash('Changed event infomation', 'success')
-                return redirect(url_for('events.show_info', id=id, **request.args))
+        try:
+            db = database.get_db()
+            with db.cursor() as cursor:
+                update_event = "UPDATE event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s, " + \
+                    "opener=%s WHERE eventid=%s;"
+                cursor.execute(update_event, (request.form['event_name'], request.form['description'],
+                                                 request.form['start'], request.form['end'], request.form['max_participants'],
+                                                 request.form['cost'], request.form['PMO_Options'], request.form['opener'], id))
+                if (cursor.rowcount == 1):
+                    db.commit()
+                    flash('Changed event infomation', 'success')
+                    return redirect(url_for('events.show_info', id=id, **request.args))
+                else:
+                    flash('Check if you insert the correct information', 'danger')
+                    return redirect(url_for('events.show_info', id=id, **request.args))
+        except pymysql.InternalError as e:
+            flash(e.args[1], 'danger')
+            return redirect(url_for('events.show_info', **request.args))
 
 @events.route('/create', methods=["GET", "POST"])
 def create():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_opener = "SELECT userid, student_name from userdatawithrole where roles = 'opener' or roles = 'admin'"
+        get_opener = "SELECT userid, student_name from userdatawithrole where roles LIKE '%opener%';"
         cursor.execute(get_opener)
         entries = cursor.fetchall()
     if request.method == "POST":
-        db = database.get_db()
-        with db.cursor() as cursor:
-            add_event_query = "INSERT INTO event(name, description, start, end, max_participants, cost, paid_members_only, opener) VALUES" + \
-                              "(%s, %s, %s, %s, %s, %s, %s);"
-            cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
-                                             request.form['start'], request.form['end'], request.form['max_participants'],
-                                             request.form['cost'], request.form['PMO_Options'], request.form['opener']))
-            if (cursor.rowcount == 1):
-                db.commit()
-                flash('Created event', 'success')
-                return redirect(url_for('events.show', **request.args))
-            else:
-                flash('Error creating user.', 'danger')
-                return redirect(url_for('events.show', **request.args))
+        try:
+            db = database.get_db()
+            with db.cursor() as cursor:
+                add_event_query = "INSERT INTO event(name, description, start, end, max_participants, cost, paid_members_only, opener) VALUES" + \
+                                  "(%s, %s, %s, %s, %s, %s, %s, %s);"
+                cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
+                                                 request.form['start'], request.form['end'], request.form['max_participants'],
+                                                 request.form['cost'], request.form['PMO_Options'], request.form['opener']))
+                if (cursor.rowcount == 1):
+                    db.commit()
+                    flash('Created event', 'success')
+                    return redirect(url_for('events.show', **request.args))
+                else:
+                    flash('Check if you insert the correct information', 'danger')
+                    return redirect(url_for('events.show', **request.args))
+        except pymysql.InternalError as e:
+            flash(e.args[1], 'danger')
+            return redirect(url_for('events.show', **request.args))
     else:
         try:
             return render_template('create.html', entries=entries)
         except TemplateNotFound:
             abort(500)
+
+@events.route('/my_events')
+def show_my_events():
+    try:
+        user = current_user()
+        if (user is not None):
+            db = database.get_db()
+            with db.cursor() as cursor:
+                get_event = "SELECT e.name AS name, t.start AS start, t.end AS end, t.total_time AS total_time FROM " + \
+                            "timeentry AS t, event AS e WHERE e.eventid=t.eventid and t.userid=%s;"
+                cursor.execute(get_event, user['userid'])
+                entries = cursor.fetchall()
+                return render_template('my_events.html', entries=entries)
+        else:
+            return redirect(url_for('accounts.signup'))
+    except TemplateNotFound:
+        abort(500)
