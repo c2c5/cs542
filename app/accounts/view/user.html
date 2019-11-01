@@ -48,8 +48,9 @@
           <tr><th>Website Roles</th><td>
             {% if current_user_roles()|length == 0 %}
               Standard Member
+            {% else %}
+              {{ current_user_roles()|join(', ') }}
             {% endif %}
-            {{ current_user_roles()|join(', ') }}
           </td></tr>
           <tr><th>CPR Certification</th><td>{{ ("<span class='text-success'>Yes</span>" if current_user()["cpr_certified"] else "No")|safe }}</td></tr>
           <tr><th>Enrolled for PE Credit</th><td>{{ "Yes" if current_user()["pe_credit"] else "No"}}</td></tr>
@@ -63,10 +64,16 @@
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Participation Overview</h5>
-        <p class="card-text">This pane will tell members how much they have attended and if they have any tournament results recently, they will be visible here</p>
+        <h6 class="card-subtitle text-muted mb-2">Since you joined the club on {{current_user()["join_date"].strftime("%B %-d, %Y")}}:</h6>
+        <p class="card-text"><span style="font-size:1.25rem">{{partitipation["non-tournament"]["hours"] or 0}} Hours</span> <span class="text-muted">of standard event participation</span></p>
+        <p class="card-text"><span style="font-size:1.25rem">{{partitipation["non-tournament"]["count"]}} {{ "Standard Event"|safe if partitipation["non-tournament"]["count"]==1 else "Standard Events"|safe}}</span> <span class="text-muted"> attended</span></p>
+        <p class="card-text"><span style="font-size:1.25rem">{{partitipation["tournament"]["hours"] or 0}} Hours</span> <span class="text-muted">of tournament participation</span></p>
+        <p class="card-text"><span style="font-size:1.25rem">{{partitipation["tournament"]["count"]}} {{ "Tournament"|safe if partitipation["tournament"]["count"]==1 else "Tournaments"|safe}}</span> <span class="text-muted"> attended</span></p>
+        <a href="#" class="card-link">See Your Events &raquo;</a><a href="#" class="card-link">See Your Tournament Results &raquo;</a>
       </div>
     </div>
   </div>
+  {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
   <div class="col-md-6" style="padding:16px">
     <div class="card">
       <div class="card-body">
@@ -75,6 +82,8 @@
       </div>
     </div>
   </div>
+  {% endif %}
+  {% if 'admin' in current_user_roles() %}
   <div class="col-md-6" style="padding:16px">
     <div class="card">
       <div class="card-body">
@@ -83,5 +92,6 @@
       </div>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

@@ -17,6 +17,9 @@
     <br />
 <h3 style="font-variant:small-caps;">Edit Account Details</h3>
 <br />
+{% if mode == "opener" or mode == "admin" %}
+<div class="alert alert-danger"><strong>Do not change this user's name unless {{user["student_name"]}} shows you valid photo ID with their old name</strong> <br />Only users with valid photo ID may change their name with you. Do not change anyone's name unless asked by them, and let them type in the password here.</div>
+{% endif %}
 <form method="post">
     <div class="form-group">
         <label for="name">Your <span style="text-decoration: underline">Full</span> Name</label>
@@ -28,14 +31,18 @@
 <br />
 
 <h3 style="font-variant:small-caps;">Reset Password</h3>
-{% if "admin" not in current_user_roles() or current_user()["userid"] == user["userid"] %}
+{% if mode == "self" %}
 <small>NOTE: For security reasons, resetting your password will log you out.</small>
 {% else %}
 <small>NOTE: For security reasons, resetting this password will log this user out.</small>
 {% endif %}
-<br /><br />
+<br />
+<br />
+{% if mode == "opener" or mode == "admin" %}
+<div class="alert alert-danger"><strong>Do not reset this password unless {{user["student_name"]}} shows you valid photo ID</strong> <br />Only users with valid photo ID may reset their password with you. Do not reset anyone's password unless asked by them, and let them type in the password here.</div>
+{% endif %}
 <form method="post">
-    {% if "admin" not in current_user_roles() or current_user()["userid"] == user["userid"] %}
+    {% if mode == "self" %}
     <div class="form-group">
         <label for="password">Old Password</label>
         <input type="password" name="oldpassword" class="form-control" id="password" placeholder="Password">
@@ -55,10 +62,10 @@
 </form>
 <br />
 <br />
-
+{% if mode != "opener" %}
 <h3 style="font-variant:small-caps;">Delete Account</h3>
 <button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }} Permanently Delete Account</button>
-
+{% endif %}
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
