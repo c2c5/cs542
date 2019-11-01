@@ -18,7 +18,7 @@ def PE():
                        "FROM TimeEntry T, User U " + \
                        "WHERE T.userid = U.userid " + \
                        "AND U.pe_credit = 1 " + \
-                       "GROUP BY student_id " +\
+                       "GROUP BY student_name " +\
                        "ORDER BY student_name"
         cursor.execute(get_pe_query)
         result = cursor.fetchall()
