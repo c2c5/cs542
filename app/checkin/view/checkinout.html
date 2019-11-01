@@ -18,10 +18,27 @@
     <tr>
         <th>Signed-in Students</th>
     </tr>
+    {% for record in records %}
     <tr>
-        {% for record in records %}
         <td>{{ record['Name'] }}</td>
-        {% endfor %}
     </tr>
+    {% endfor %}
+</table>
+<table class="table">
+    <tr>
+        <th>Signed-out Students</th>
+        <th>Total Time(hours)</th>
+    </tr>
+    {% for check_out in check_outs %}
+    <tr>
+        <td>{{ check_out['Name']}}</td>
+        <td>{{ check_out['Time']}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<form method="post">
+    <input type="hidden" name="eventid" value="{{ id }}">
+    <button type="submit" class="btn btn-danger">Close</button>
+</form>
 
 {% endblock %}

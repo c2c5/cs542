@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, make_response
-from jinja2 import TemplateNotFound
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from util import database
-from app.accounts.session import current_user, current_user_roles, invalidate_token, CS542_TOKEN_COOKIE, CS542_TOKEN_COOKIE_EXPIRY, require_login, require_oneof_roles
+from app.accounts.session import require_oneof_roles
 import pymysql
 import hashlib
 
@@ -34,81 +33,113 @@ def checkinout(id):
 
     if request.method == "POST":
         with db.cursor() as cursor:
-            studentIDshash = hashlib.sha512(request.form['StudentID'].encode('utf-8')).hexdigest()
-
-            find_userid_query = "SELECT userid FROM User WHERE student_id = %s"
-            cursor.execute(find_userid_query, studentIDshash)
-            userid = cursor.fetchall()
-            if userid == ():
-                flash('No account with this studentID, please sign up!', 'danger')
-                return render_template('checkinout.html')
-            else:
-                userid = userid[0]['userid']
-
-
-            check_userid_query = "SELECT count(*) AS c FROM TimeEntry " +\
-                                 "WHERE eventid= %s " +\
-                                 "AND userid = %s"
-            cursor.execute(check_userid_query, (id, userid))
-            count = cursor.fetchall()
-            count = count[0]['c']
-            if count == 0:
-                try:
-                    add_start_query = "INSERT INTO TimeEntry (eventid, userid, start) VALUES(%s, %s, CURRENT_TIMESTAMP());"
-                    cursor.execute(add_start_query, (id, userid))
-                    if (cursor.rowcount == 1):
+            for arg, val in request.args.items():
+                if arg == 'eventid':
+                    close_event = "UPDATE event SET actual_end=CURRENT_TIMESTAMP() WHERE eventid=%s;"
+                    cursor.execute(close_event, request.form['eventid'])
+                    if cursor.rowcount == 1:
                         db.commit()
-                        flash('Successfully checked in', 'success')
-                        get_view_query = "SELECT student_name AS Name " + \
-                                         "FROM TimeEntry T, User U " + \
-                                         "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
-                        cursor.execute(get_view_query, id)
-                        result = cursor.fetchall()
-                        return render_template('checkinout.html', records=result)
-                except pymysql.InternalError as e:
-                    flash(e.args[1], 'danger')
-                    get_view_query = "SELECT student_name AS Name " + \
-                                     "FROM TimeEntry T, User U " + \
-                                     "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
-                    cursor.execute(get_view_query, id)
-                    result = cursor.fetchall()
-                    return render_template('checkinout.html', records=result)
-
-
-            if count != 0:
-                check_checkout_query = "SELECT count(*) AS c FROM TimeEntry " +\
-                                       "WHERE eventid =%s AND userid = %s AND end is not null"
-                cursor.execute(check_checkout_query, (id, userid))
-                cc = cursor.fetchall()
-                if cc[0]['c'] == 0:
-                    add_end_query = "UPDATE TimeEntry SET end = CURRENT_TIMESTAMP() " +\
-                                    "WHERE eventid = %s AND userid = %s"
-                    cursor.execute(add_end_query, (id, userid))
-                    if (cursor.rowcount == 1):
-                        db.commit()
-                        flash('Successfully checked out', 'success')
-                        get_view_query = "SELECT student_name AS Name " + \
-                                         "FROM TimeEntry T, User U " + \
-                                         "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
-                        cursor.execute(get_view_query, id)
-                        result = cursor.fetchall()
-                        return render_template('checkinout.html', records=result)
+                        flash('Event has been closed!', 'success')
+                        return redirect(url_for('events.show', **request.args))
                     else:
-                        flash('Something missing in the account', 'danger')
-                        get_view_query = "SELECT student_name AS Name " + \
+                        flash('Event has not been closed successfully!', 'danger')
+                        return redirect(url_for('events.show', **request.args))
+                else:
+                    studentIDshash = hashlib.sha512(val.encode('utf-8')).hexdigest()
+
+                    find_userid_query = "SELECT userid FROM User WHERE student_id = %s"
+                    cursor.execute(find_userid_query, studentIDshash)
+                    userid = cursor.fetchall()
+                    if userid == ():
+                        flash('No account with this studentID, please sign up!', 'danger')
+                        return render_template('checkinout.html', id=id)
+                    else:
+                        userid = userid[0]['userid']
+
+
+                    check_userid_query = "SELECT count(*) AS c FROM TimeEntry " +\
+                                         "WHERE eventid= %s " +\
+                                         "AND userid = %s"
+                    cursor.execute(check_userid_query, (id, userid))
+                    count = cursor.fetchall()
+                    count = count[0]['c']
+                    if count == 0:
+                        get_view_query = "SELECT student_name AS Name, total_time AS Time " + \
                                          "FROM TimeEntry T, User U " + \
-                                         "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                                         "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
                         cursor.execute(get_view_query, id)
-                        result = cursor.fetchall()
-                        return render_template('checkinout.html', records=result)
-                elif cc[0]['c'] == 1:
-                    flash("Successfully checked out!!", "success")
-                    get_view_query = "SELECT student_name AS Name " + \
-                                     "FROM TimeEntry T, User U " + \
-                                     "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
-                    cursor.execute(get_view_query, id)
-                    result = cursor.fetchall()
-                    return render_template('checkinout.html', records=result)
+                        check_out = cursor.fetchall()
+                        try:
+                            add_start_query = "INSERT INTO TimeEntry (eventid, userid, start) VALUES(%s, %s, CURRENT_TIMESTAMP());"
+                            cursor.execute(add_start_query, (id, userid))
+                            if (cursor.rowcount == 1):
+                                db.commit()
+                                flash('Successfully checked in', 'success')
+                                get_view_query = "SELECT student_name AS Name " + \
+                                                 "FROM TimeEntry T, User U " + \
+                                                 "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                                cursor.execute(get_view_query, id)
+                                result = cursor.fetchall()
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                        except pymysql.InternalError as e:
+                            flash(e.args[1], 'danger')
+                            get_view_query = "SELECT student_name AS Name " + \
+                                             "FROM TimeEntry T, User U " + \
+                                             "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                            cursor.execute(get_view_query, id)
+                            result = cursor.fetchall()
+                            return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+
+
+                    if count != 0:
+                        check_checkout_query = "SELECT count(*) AS c FROM TimeEntry " +\
+                                               "WHERE eventid =%s AND userid = %s AND end is not null"
+                        cursor.execute(check_checkout_query, (id, userid))
+                        cc = cursor.fetchall()
+                        if cc[0]['c'] == 0:
+                            add_end_query = "UPDATE TimeEntry SET end = CURRENT_TIMESTAMP() " +\
+                                            "WHERE eventid = %s AND userid = %s"
+                            cursor.execute(add_end_query, (id, userid))
+                            if (cursor.rowcount == 1):
+                                db.commit()
+                                flash('Successfully checked out', 'success')
+                                get_view_query = "SELECT student_name AS Name " + \
+                                                 "FROM TimeEntry T, User U " + \
+                                                 "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                                cursor.execute(get_view_query, id)
+                                result = cursor.fetchall()
+                                get_view_query = "SELECT student_name AS Name, total_time AS Time " + \
+                                                 "FROM TimeEntry T, User U " + \
+                                                 "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
+                                cursor.execute(get_view_query, id)
+                                check_out = cursor.fetchall()
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                            else:
+                                flash('Something missing in the account', 'danger')
+                                get_view_query = "SELECT student_name AS Name " + \
+                                                 "FROM TimeEntry T, User U " + \
+                                                 "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                                cursor.execute(get_view_query, id)
+                                result = cursor.fetchall()
+                                get_view_query = "SELECT student_name AS Name, total_time AS Time " + \
+                                                 "FROM TimeEntry T, User U " + \
+                                                 "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
+                                cursor.execute(get_view_query, id)
+                                check_out = cursor.fetchall()
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                        elif cc[0]['c'] == 1:
+                            flash("The student has already checked out", "success")
+                            get_view_query = "SELECT student_name AS Name " + \
+                                             "FROM TimeEntry T, User U " + \
+                                             "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                            cursor.execute(get_view_query, id)
+                            result = cursor.fetchall()
+                            get_view_query = "SELECT student_name AS Name, total_time AS Time " + \
+                                             "FROM TimeEntry T, User U " + \
+                                             "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
+                            cursor.execute(get_view_query, id)
+                            check_out = cursor.fetchall()
+                            return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
     else:
         with db.cursor() as cursor:
             get_view_query = "SELECT student_name AS Name " + \
@@ -116,4 +147,9 @@ def checkinout(id):
                             "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
             cursor.execute(get_view_query, id)
             result = cursor.fetchall()
-        return render_template('checkinout.html', records=result)
+            get_view_query = "SELECT student_name AS Name, total_time AS Time " + \
+                             "FROM TimeEntry T, User U " + \
+                             "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
+            cursor.execute(get_view_query, id)
+            check_out = cursor.fetchall()
+        return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
