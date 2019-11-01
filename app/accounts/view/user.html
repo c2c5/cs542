@@ -1,27 +1,10 @@
 {% extends 'base.html' %}
-{% block header %}
-   <h1>{% block title %}Dashboard{% endblock %}</h1>
-{% endblock %}
+
+{% block title %}Dashboard{% endblock %}
+{% block header %}<h1>Welcome, {{current_user().student_name}}</h1>{% endblock %}
+
 
 {% block page %}
-{% if current_user_roles() is not none %}
-<p>{{ user["student_name"] }} belongs to the following groups:</p>
-{% else %}
-<p>{{ user["student_name"] }} is a standard user and is not part of any groups</p>
-{% endif %}
-
-<p>You can see your scores here</p>
-<ul>
-    <li>
-        <a href="{{ url_for('accounts.Scores') }}">
-            <font size="4" color="black">MyScores</font>
-        </a>
-    </li>
-
-</ul>
-<hr />
-<!-- New Dashboard Layout Here-->
-<h1>Welcome, {{current_user().student_name}}</h1>
 <br />
 <div style="display:flex; flex-flow: row wrap; width: 100%; max-height:50vh">
   <div class="col-md-6" style="padding:16px">
@@ -49,12 +32,12 @@
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Participation Overview</h5>
-        <h6 class="card-subtitle text-muted mb-2">Since you joined the club on {{current_user()["join_date"].strftime("%B %-d, %Y")}}:</h6>
+        <h6 class="card-subtitle text-muted mb-2">Since you joined the club on {{current_user()["join_date"].strftime("%B %d, %Y")}}:</h6>
         <p class="card-text"><span style="font-size:1.25rem">{{partitipation["non-tournament"]["hours"] or 0}} Hours</span> <span class="text-muted">of standard event participation</span></p>
         <p class="card-text"><span style="font-size:1.25rem">{{partitipation["non-tournament"]["count"]}} {{ "Standard Event"|safe if partitipation["non-tournament"]["count"]==1 else "Standard Events"|safe}}</span> <span class="text-muted"> attended</span></p>
         <p class="card-text"><span style="font-size:1.25rem">{{partitipation["tournament"]["hours"] or 0}} Hours</span> <span class="text-muted">of tournament participation</span></p>
         <p class="card-text"><span style="font-size:1.25rem">{{partitipation["tournament"]["count"]}} {{ "Tournament"|safe if partitipation["tournament"]["count"]==1 else "Tournaments"|safe}}</span> <span class="text-muted"> attended</span></p>
-        <a href="#" class="card-link">See Your Events &raquo;</a><a href="#" class="card-link">See Your Tournament Results &raquo;</a>
+        <a href="{{ url_for('events.show_my_events') }}" class="card-link">More Info &raquo;</a><a href="{{ url_for('accounts.Scores') }}" class="card-link">See Your Tournament Results &raquo;</a>
       </div>
     </div>
   </div>
@@ -73,7 +56,9 @@
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Reports</h5>
-        <p class="card-text">This pane will tell let admins see reports like PE participation</p>
+        <ul>
+          <li><a href="{{url_for('checkin.PE')}}">PE Credit Report</a></li>
+        </ul>
       </div>
     </div>
   </div>
