@@ -14,7 +14,7 @@ checkin = Blueprint('checkin', __name__,
 def PE():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_pe_query = "SELECT student_name AS Name, student_id AS ID, SUM(total_time) AS TimeSpent " + \
+        get_pe_query = "SELECT student_name AS Name, SUM(total_time) AS TimeSpent " + \
                        "FROM TimeEntry T, User U " + \
                        "WHERE T.userid = U.userid " + \
                        "AND U.pe_credit = 1 " + \
