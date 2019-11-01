@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}[Admin] {% block header %}Confirm Reset{% endblock %}{% endblock %}
+
+{% block page %}
+
+<h3>Are you sure that you want to clear all {{type}}?</h3>
+<a class="btn btn-danger mr-1" href="{{url_for('accounts.admin')}}">Cancel</a>
+<form method="POST" style="display: inline-block;">
+    <button type="submit" class="btn btn-success" >Yes</button>
+</form>
+
+{% endblock %}

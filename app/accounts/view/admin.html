@@ -8,7 +8,11 @@
 
 <div class="form-group">
   <div class="row">
-    <div class="input-group col col-md-6"></div>
+    <div class="input-group col col-md-6">
+      {% if 'admin' in current_user_roles() %}
+      <a href="{{ url_for('accounts.resetWaiver') }}" class="btn btn-warning mr-1 mb-1">{{ octicon("alert") }} Reset all waivers</a> <a href=" {{ url_for('accounts.resetPayment') }}" class="btn btn-warning mb-1">{{ octicon("alert") }} Reset all membership dues</a>
+      {% endif %}
+    </div>
     <div class=" col col-md-4">
       <form method="get">
         <div class="input-group">
@@ -17,7 +21,7 @@
           <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
           {% endif %}
           {% endfor %}
-          <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's username" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
+          <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's name" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
           <div class="input-group-append">
             <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
           </div>
@@ -53,14 +57,6 @@
                   {% endfor %}
                   <button type="submit" class="btn btn-danger">{{ octicon("x", style="fill:white") }}</button>
                 </form>
-                <!--<form method="GET">
-                  {% for arg, val in request.args.items() %}
-                  {% if (arg != filt) %}
-                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
-                  {% endif %}
-                  {% endfor %}
-                  <button type="submit" class="btn btn-secondary">{{ octicon("dash", style="fill:white") }}</button>
-                </form>-->
               </div>
             </td>
           </tr>
@@ -102,9 +98,7 @@
     <th>Setter?</th>
     <th>Opener?</th>
     <th>Admin?</th>
-    {% if 'admin' in current_user_roles() %}
-      <th>Actions</th>
-    {% endif %}
+    <th>Actions</th>
   </tr>
   {% for user in userlist %}
   <tr id="user-{{ user['userid'] }}">
@@ -212,12 +206,12 @@
       {% endif %}
     </td>
     {% endfor %}
-    {% if 'admin' in current_user_roles() %}
       <td>
-        <button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
-        <a class="btn btn-secondary" href="{{ url_for('accounts.edit', id=user['userid']) }}">{{ octicon("pencil", style="fill:white") }}</a>
+          {% if 'admin' in current_user_roles() %}
+            <button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+          {% endif %}
+          <a class="btn btn-secondary" href="{{ url_for('accounts.edit', id=user['userid']) }}">{{ octicon("pencil", style="fill:white") }}</a>
       </td>
-    {% endif %}
   </tr>
   {% endfor %}
 </table>

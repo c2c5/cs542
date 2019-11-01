@@ -19,7 +19,16 @@ def show():
     try:
         user = current_user()
         if (user is not None):
-            return render_template('user.html', user=user)
+            d = database.get_db()
+            with d.cursor() as cursor:
+                tournament_participation = """SELECT SUM(total_time) AS hours, COUNT(total_time) AS count, "tournament" as type FROM TimeEntry T, Event E WHERE userid=%s AND E.eventid=T.eventid AND E.tournament_result_ordering is not NULL
+                UNION
+                SELECT SUM(total_time) AS hours, COUNT(total_time) AS count, "non-tournament" as type FROM TimeEntry T, Event E WHERE userid=%s AND E.eventid=T.eventid AND E.tournament_result_ordering is NULL;
+                """
+                cursor.execute(tournament_participation, (user["userid"], user["userid"]))
+                t_participation = { v["type"]:{k: b for k, b in v.items() if k != "type"} for v in cursor.fetchall() }
+                print(t_participation)
+            return render_template('user.html', user=user, partitipation=t_participation)
         else:
             return redirect(url_for('accounts.signin'))
     except TemplateNotFound:
@@ -75,7 +84,7 @@ def signout():
         flash('Logged Out', 'success')
         return resp
     else:
-        abort(500)
+        return redirect('/')
 
 @accounts.route('/new', methods=["GET","POST"])
 def signup():
@@ -239,16 +248,33 @@ def admin():
 @require_login
 def edit(id):
     current_u = current_user()
-    if ((current_u["userid"] != id and 'admin' not in current_user_roles())):
+    if ((int(current_u["userid"]) != int(id) and ('admin' not in current_user_roles() and 'opener' not in current_user_roles()))):
         abort(403)
+
+    mode = ""
+    if (int(current_u["userid"]) == int(id)):
+        mode = "self"
+    elif ('admin' in current_user_roles()):
+        mode = "admin"
+    elif ('opener' in current_user_roles()):
+        mode = "opener"
+    
     db = database.get_db()
+    with db.cursor() as cursor:
+        usersel = "SELECT * FROM UserDataWithRole WHERE userid=%s"
+        cursor.execute(usersel, id)
+        userdata = cursor.fetchone()
+
+    if ("admin" in userdata["roles"].split(", ") and admin not in current_user_roles()):
+        flash("You cannot edit that user", "warning")
+        return redirect(url_for('accounts.admin'))
+
     if (request.method == "GET"):
-        with db.cursor() as cursor:
-            usersel = "SELECT * FROM UserDataWithRole WHERE userid=%s"
-            cursor.execute(usersel, id)
-            return render_template('edit.html', user=cursor.fetchone())
+        return render_template('edit.html', user=userdata, mode=mode)
     elif (request.method == "POST"):
         if ("delete" in request.form):
+            if (mode == "opener"):
+                abort(403)
             with db.cursor() as cursor:
                 userdel = "DELETE FROM User WHERE userid=%s"
                 cursor.execute(userdel, (id))
@@ -266,7 +292,7 @@ def edit(id):
                 cursor.execute(usersel, id)
 
                 # Admins can change other user's passwords, or the user when providing the right password can change other user's passwords
-                if (("admin" in current_user_roles() and current_u["userid"] != int(id)) or bcrypt.checkpw(request.form["oldpassword"].encode('utf-8'), cursor.fetchone()['password_hash'].encode('utf-8'))):
+                if (mode == "admin" or mode == "opener" or bcrypt.checkpw(request.form["oldpassword"].encode('utf-8'), cursor.fetchone()['password_hash'].encode('utf-8'))):
                     with db.cursor() as cursor:
                         changepw = "UPDATE User SET password_hash=%s WHERE userid=%s"
                         cursor.execute(changepw, (bcrypt.hashpw(request.form["password"].encode('utf-8'), bcrypt.gensalt()), id))
@@ -289,6 +315,38 @@ def edit(id):
             return redirect(url_for('accounts.edit', id=id, **request.args))
         else:
             abort(400)
+
+@accounts.route('/reset/waiver', methods=["GET","POST"])
+@require_oneof_roles("admin")
+def resetWaiver():
+    db = database.get_db()
+    if (request.method == "POST"):
+        with db.cursor() as cursor:
+            clearwaiver = "UPDATE UserData set waiver=0;"
+            cursor.execute(clearwaiver)
+        db.commit()
+        flash("Cleared all waiver signatures", "success")
+        return redirect(url_for('accounts.admin'))
+    else:
+        return render_template('resetconfirm.html', type="waiver signatures")
+
+@accounts.route('/reset/payment', methods=["GET","POST"])
+@require_oneof_roles("admin")
+def resetPayment():
+    if (request.method == "POST"):
+        db = database.get_db()
+        with db.cursor() as cursor:
+            clearpayment = "UPDATE UserData set paid=0;"
+            cursor.execute(clearpayment)
+        db.commit()
+        flash("Cleared all membership payments", "success")
+        return redirect(url_for('accounts.admin'))
+    else:
+        return render_template('resetconfirm.html', type="membership payments")
+
+###############
+# Other Stuff #
+###############
 
 @accounts.route('/scores')
 def Scores():
