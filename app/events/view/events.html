@@ -17,8 +17,10 @@
 		<td>{{ entry.start }}</td>
 		<td>{{ entry.end }}</td>
 		<td><a class="btn btn-info" href="{{ url_for('events.show_info', id=entry.eventid) }}">Info</a></td>
+		{% if 'admin' in current_user_roles() %}
 		<td><a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">Edit</a></td>
-		{% if not entry.actual_start %}
+		{% endif %}
+		{% if not entry.actual_end and ('admin' in current_user_roles() or entry.opener == current_user()['userid']) %}
 		<td>
 			<form method="post">
 				<input type="hidden" name="eventid" value="{{ entry.eventid }}">
