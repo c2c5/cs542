@@ -9,20 +9,28 @@ checkin = Blueprint('checkin', __name__,
                         template_folder='view')
 
 '''PE'''
-@checkin.route('/pe')
+@checkin.route('/pe', methods=["GET","POST"])
 @require_oneof_roles('admin')
 def PE():
     db = database.get_db()
-    with db.cursor() as cursor:
-        get_pe_query = "SELECT student_name AS Name, SUM(total_time) AS TimeSpent " + \
-                       "FROM TimeEntry T, User U " + \
-                       "WHERE T.userid = U.userid " + \
-                       "AND U.pe_credit = 1 " + \
-                       "GROUP BY student_name " +\
-                       "ORDER BY student_name"
-        cursor.execute(get_pe_query)
-        result = cursor.fetchall()
-    return render_template('PE.html', records=result)
+    result = [{'Name':None, 'TimeSpent':None}]
+    if request.method == "POST":
+        start_date = request.form['Start Date']
+        with db.cursor() as cursor:
+            create_pe_view_query = "SELECT student_name AS "
+            get_pe_query = "SELECT student_name AS Name, SUM(total_time) AS TimeSpent " + \
+                           "FROM User U left join (SELECT * from timeentry where start >= %s) AS T " + \
+                           "ON U.userid = T.userid " + \
+                           "WHERE U.pe_credit = 1 " + \
+                           "GROUP BY student_name " + \
+                           "ORDER BY student_name"
+
+            cursor.execute(get_pe_query, start_date)
+            result = cursor.fetchall()
+        return render_template('PE.html', records=result)
+    else:
+        return render_template('PE.html', records=result)
+
 
 
 '''Checkin/out'''
@@ -59,7 +67,17 @@ def checkinout(id):
                     userid = cursor.fetchall()
                     if userid == ():
                         flash('No account with this studentID, please sign up!', 'danger')
-                        return render_template('checkinout.html', id=id)
+                        get_view_query = "SELECT student_name AS Name " + \
+                                         "FROM TimeEntry T, User U " + \
+                                         "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
+                        cursor.execute(get_view_query, id)
+                        result = cursor.fetchall()
+                        get_view_query = "SELECT student_name AS Name, total_time AS Time " + \
+                                         "FROM TimeEntry T, User U " + \
+                                         "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
+                        cursor.execute(get_view_query, id)
+                        check_out = cursor.fetchall()
+                        return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
                     else:
                         userid = userid[0]['userid']
                     check_userid_query = "SELECT count(*) AS c FROM TimeEntry " +\
