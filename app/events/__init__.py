@@ -69,14 +69,14 @@ def edit(id):
                                                  request.form['cost'], request.form['PMO_Options'], request.form['opener'], id))
                 if (cursor.rowcount == 1):
                     db.commit()
-                    flash('Changed event infomation', 'success')
+                    flash('Event infomation has been changed! ', 'success')
                     return redirect(url_for('events.show_info', id=id, **request.args))
                 else:
                     flash('Check if you insert the correct information', 'danger')
                     return redirect(url_for('events.show_info', id=id, **request.args))
         except pymysql.InternalError as e:
             flash(e.args[1], 'danger')
-            return redirect(url_for('events.show_info', **request.args))
+            return redirect(url_for('events.show_info', id=id, **request.args))
 
 @events.route('/create', methods=["GET", "POST"])
 def create():

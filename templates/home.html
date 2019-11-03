@@ -64,9 +64,9 @@
               {% elif event.actual_start is not none and event.actual_end is not none %}
                 Event Ended Early
               {% elif event.start.date() == event.end.date() %}
-                {{ event.start.date().strftime("%a %b %d") }} {{ event.start.time().strftime("%-I:%M %p") }} - {{ event.end.time().strftime("%-I:%M %p") }} 
+                {{ event.start.date().strftime("%a %b %d") }} {{ event.start.time().strftime("%I:%M %p") }} - {{ event.end.time().strftime("%I:%M %p") }} 
               {% else %}
-                {{ event.start.date().strftime("%a %b %d") }} {{ event.start.time().strftime("%-I:%M %p") }} - {{ event.end.date().strftime("%a %b %d") }} {{ event.end.time().strftime("%-I:%M %p") }}
+                {{ event.start.date().strftime("%a %b %d") }} {{ event.start.time().strftime("%I:%M %p") }} - {{ event.end.date().strftime("%a %b %d") }} {{ event.end.time().strftime("%I:%M %p") }}
               {% endif %}
             </h6>
             <a href="{{ url_for('events.show_info', id=event.eventid) }}" class="card-link">More Info &raquo;</a>
