@@ -278,7 +278,7 @@ def edit(id):
         cursor.execute(usersel, id)
         userdata = cursor.fetchone()
 
-    if ("admin" in userdata["roles"].split(", ") and admin not in current_user_roles()):
+    if ("admin" in userdata["roles"].split(", ") and "admin" not in current_user_roles()):
         flash("You cannot edit that user", "warning")
         return redirect(url_for('accounts.admin'))
 
