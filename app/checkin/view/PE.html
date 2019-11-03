@@ -1,25 +1,30 @@
 {%extends 'base.html' %}
+{% block title %}PE{% endblock %}
 
-<h1> {% block title %}PE{% endblock %} </h1>
 
 {% block page %}
-
-<div>
-
 <form method="post">
-    <hr>
-        <div class="form-group">
-            <label for="Start Date"><b>Start Date</b></label>
-            <input type="text" class="form-control" id="StudentID" placeholder="YYYY-MM-DD" name="Start Date" required>
+    <div class="row">
+        <div class="col-sm-12">
+            <label for="start">Start Date</label>
+            <input type="text" name="Start Date" class="form-control" id="start" placeholder="2019-01-01" dayViewHeaderFormat='MMMM YYYY'>
         </div>
+    </div>
+    <br>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
-    {{test}}
-<br>
-       <font size="8" face="Verdana" color="black" >PE Students</font>
+<script type="text/javascript">
+	$(function(){
+		$('#start').datetimepicker({
+			format: 'YYYY-MM-DD'
+		});
+		});
+</script>
 
-</div>
+<br>
+<font size="8" face="Verdana" color="black" >PE Students</font>
+
 
 <hr style= "border:3px solid black" size=1 >
 <center>
@@ -40,5 +45,6 @@
     </font>
 
 </center>
+
 
 {% endblock %}
