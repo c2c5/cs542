@@ -12,6 +12,7 @@ checkin = Blueprint('checkin', __name__,
 @checkin.route('/pe', methods=["GET","POST"])
 @require_oneof_roles('admin')
 def PE():
+    flash('Please enter the start date of the current semester/term in order to see the PE student information!', 'danger')
     db = database.get_db()
     result = [{'Name':None, 'TimeSpent':None}]
     if request.method == "POST":
