@@ -31,8 +31,12 @@ def Route():
 @routes.route('/SetRoutes',methods=["GET","POST"])
 @require_oneof_roles("setter")
 def SetRoutes():
+    db = database.get_db()
+    with db.cursor() as cursor:
+        get_name_query = "SELECT U.userid, role,student_name from User U, UserRoles R WHERE R.role = %s AND U.userid=R.userid"
+        cursor.execute(get_name_query, "setter")
+        entries = cursor.fetchall()
     if request.method == "POST":
-        db = database.get_db()
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -46,6 +50,6 @@ def SetRoutes():
             cursor.execute(add_route_query, (set_by, difficulty, picture))
             db.commit()
             flash('Created a route', 'success')
-            return render_template('SetRoute.html')
+            return render_template('SetRoute.html',entries = entries)
     else:
-        return render_template('SetRoute.html')
+        return render_template('SetRoute.html',entries = entries)

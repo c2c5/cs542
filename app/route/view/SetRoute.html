@@ -3,6 +3,24 @@
 <h1> {% block title %}SetRoutes{% endblock %} </h1>
 
 {% block page %}
+<script type="text/javascript">
+$('body').on('change', '#file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [numFiles, label]);
+});
+
+$(document).ready( function() {
+    $('#file').on('fileselect', function(event, numFiles, label) {
+        var input = $(this).parents('.input-group').find(':text'),
+            log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+        $("#file-label").html(log)
+    });
+});
+</script>
+
 <h1>Start Setting</h1>
 <form method="post" enctype="multipart/form-data">
     <hr>
@@ -11,12 +29,26 @@
             <input type="text" class="form-control" id="Difficulty" placeholder="1-10" name="Difficulty" required>
         </div>
     <hr>
+
         <div class="form-group">
             <label for="SetBy"><b>SetBy</b></label>
-            <input type="text" class="form-control" id="SetBy" placeholder="Your ID" name="SetBy" required>
+            <select class="form-control" name="SetBy" id="SetBy">
+			    <option value="None">Select an Setter</option>
+			    {% for entry in entries %}
+			        <option value="{{ entry['userid'] }}">{{ entry.student_name }}</option>
+			    {% endfor %}
+		    </select>
         </div>
     <hr>
-    <input type="file" name="file">
+
+    <label><b>UploadPhoto</b></label>
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="file" name="file">
+            <label class="custom-file-label" id="file-label">Choose file</label>
+        </div>
+
+
+    <hr>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}
