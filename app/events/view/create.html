@@ -1,34 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Create Events{% endblock %}
 {% block header %}
-<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdn.bootcss.com/moment.js/2.24.0/moment-with-locales.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <h1>Create Events</h1>
 {% endblock %}
 
 {% block page %}
-<script type="text/javascript">
-$(function () {
-	$('#datetimepicker1').datetimepicker({
-
-        format: 'YYYY-MM-DD hh:mm:ss',
-
-        locale: moment.locale('en')
-
-    });
-    $('#datetimepicker2').datetimepicker({
-
-        format: 'YYYY-MM-DD hh:mm:ss',
-
-        locale: moment.locale('en')
-
-    });
-});
-</script>
 <form method="post">
 	<div class="form-group">
 		<label for='event_name'>Events Name</label>
@@ -36,24 +12,18 @@ $(function () {
 	</div>
 	<div class="form-group">
 		<label for='description'>Description</label>
-		<textarea name="description" id="description" class="form-control" placeholder="description" value="{{description}}" rows="3"></textarea>
+		<textarea name="description" class="form-control" placeholder="description" rows="3"></textarea>
 	</div>
-	<div class="form-group">
-		<label for="start">Start Time</label>
-		<div class="input-group date" id="datetimepicker1">
-			<input type="text" name="start" id="start" class="form-control" placeholder="2019-01-01 00:00:00" value="{{start}}">
-			<span class="input-group-addon">
-				<span class="glyphicon glyphicon-calendar"></span>
-			</span>
+	<div class="row">
+		<div class="col-sm-12">
+			<label for="start">Start Time</label>
+			<input type="text" name="start" class="form-control" id="start" placeholder="2019-01-01 00:00:00" dayViewHeaderFormat='MMMM YYYY'>
 		</div>
 	</div>
-	<div class="form-group">
-		<label for="end">End Time</label>
-		<div class="input-group date" id="datetimepicker2">
-			<input type="text" name="end" id="end" class="form-control" placeholder="2019-01-01 00:00:00" value="{{end}}">
-			<span class="input-group-addon">
-				<span class="glyphicon glyphicon-calendar"></span>
-			</span>
+	<div class="row">
+		<div class="col-sm-12">
+			<label for="end">End Time</label>
+			<input type="text" name="end" class="form-control" id="end" placeholder="2019-01-01 00:00:00">
 		</div>
 	</div>
 	<div class="form-group">
@@ -86,5 +56,19 @@ $(function () {
 	</div>
 	<button type="submit" class="btn btn-primary">Create</button>
 </form>
+<script type="text/javascript">
+	$(function(){
+		$('#start').datetimepicker({
+			format: 'YYYY-MM-DD HH:mm:ss'
+		});
+		});
+</script>
+<script type="text/javascript">
+	$(function(){
+		$('#end').datetimepicker({
+			format: 'YYYY-MM-DD HH:mm:ss'
+		});
+		});
+</script>
 
 {% endblock %}
