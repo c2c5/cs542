@@ -17,7 +17,7 @@
             {% if current_user_roles()|length == 0 %}
               Standard Member
             {% else %}
-              {{ current_user_roles()|join(', ') }}
+              {{ current_user_roles()|join(', ')|title }}
             {% endif %}
           </td></tr>
           <tr><th>CPR Certification</th><td>{{ ("<span class='text-success'>Yes</span>" if current_user()["cpr_certified"] else "No")|safe }}</td></tr>
@@ -43,12 +43,14 @@
   </div>
   {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
   <div class="col-md-6" style="padding:16px">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Your Upcoming Events</h5>
-        <p class="card-text">This pane will only be available to admins and openers. This will allow an opener to see what events they are opening for next</p>
-      </div>
-    </div>
+    <h5 class="mb-4">Your Upcoming Events</h5>
+    {% if opener_events|length == 0 %}
+      <p class="text-muted">No events in the next 7 days</p>
+    {% endif %}
+    {% for event in opener_events %}
+      {% include 'eventwidget.html' %}
+      <br />
+    {% endfor %}
   </div>
   {% endif %}
   {% if 'admin' in current_user_roles() %}

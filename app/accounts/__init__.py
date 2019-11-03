@@ -27,8 +27,12 @@ def show():
                 """
                 cursor.execute(tournament_participation, (user["userid"], user["userid"]))
                 t_participation = { v["type"]:{k: b for k, b in v.items() if k != "type"} for v in cursor.fetchall() }
-                print(t_participation)
-            return render_template('user.html', user=user, partitipation=t_participation)
+                
+                op_events_query = "SELECT * FROM Event WHERE opener=%s AND end >= CURRENT_TIMESTAMP AND end < DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 day) ORDER BY start;"
+                cursor.execute(op_events_query, user["userid"])
+                opener_events = cursor.fetchall()
+
+            return render_template('user.html', user=user, partitipation=t_participation, opener_events=opener_events)
         else:
             return redirect(url_for('accounts.signin'))
     except TemplateNotFound:
@@ -108,7 +112,16 @@ def signup():
             cursor.execute(add_user_query, (studentIDHash, request.form["name"], bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)))
             if (cursor.rowcount == 1):
                 db.commit()
-                flash('Created user account', 'success')
+
+                check_if_first_user_query = "SELECT COUNT(*) as ct FROM User;"
+                cursor.execute(check_if_first_user_query)
+                if (int(cursor.fetchone()["ct"]) == 1):
+                    check_if_first_user_query = "INSERT INTO UserRoles VALUES ((SELECT userid FROM User LIMIT 1), 'admin');"
+                    cursor.execute(check_if_first_user_query)
+                    db.commit()
+                    flash('Created first user account as admin', 'success')
+                else:
+                    flash('Created user account', 'success')
                 return redirect(url_for('accounts.signup', **request.args))
             else:
                 flash('Error creating user. Does one already exist?', 'danger')
