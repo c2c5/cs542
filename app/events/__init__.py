@@ -48,7 +48,7 @@ def edit(id):
     if request.method == "GET":
         db = database.get_db()
         with db.cursor() as cursor:
-            get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only FROM event WHERE eventid=%s;"
+            get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only, opener FROM event WHERE eventid=%s;"
             cursor.execute(get_event_info, id)
             entries = cursor.fetchall()
             get_opener = "SELECT userid, student_name from userdatawithrole where roles LIKE '%opener%'"

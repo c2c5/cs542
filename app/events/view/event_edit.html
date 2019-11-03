@@ -64,7 +64,11 @@
 		<select class="form-control" name="opener">
 			<option value="None">Select an Opener</option>
 			{% for opener in openers %}
+			{% if opener.userid == entry.opener %}
+			<option value="{{ opener.userid }}" selected="selected">{{ opener.student_name }}</option>
+			{% else %}
 			<option value="{{ opener.userid }}">{{ opener.student_name }}</option>
+			{% endif %}
 			{% endfor %}
 		</select>
 	</div>
