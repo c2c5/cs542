@@ -18,13 +18,17 @@ def PE():
     if request.method == "POST":
         start_date = request.form['Start Date']
         with db.cursor() as cursor:
-            create_pe_view_query = "SELECT student_name AS "
-            get_pe_query = "SELECT student_name AS Name, SUM(total_time) AS TimeSpent " + \
-                           "FROM User U left join (SELECT * from timeentry where start >= %s) AS T " + \
-                           "ON U.userid = T.userid " + \
-                           "WHERE U.pe_credit = 1 " + \
-                           "GROUP BY student_name " + \
-                           "ORDER BY student_name"
+            get_pe_query = "SELECT Name, SUM(total_time) AS TimeSpent " + \
+                           "FROM PE " +\
+                           "WHERE start >= %s " +\
+                           "GROUP BY Name " +\
+                           "ORDER BY Name"
+            #get_pe_query = "SELECT student_name AS Name, SUM(total_time) AS TimeSpent " + \
+            #              "FROM User U left join (SELECT * from timeentry where start >= %s) AS T " + \
+            #               "ON U.userid = T.userid " + \
+            #               "WHERE U.pe_credit = 1 " + \
+            #               "GROUP BY student_name " + \
+            #               "ORDER BY student_name"
 
             cursor.execute(get_pe_query, start_date)
             result = cursor.fetchall()
