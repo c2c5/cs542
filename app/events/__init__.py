@@ -12,7 +12,7 @@ def show():
         try:
             db = database.get_db()
             with db.cursor() as cursor:
-                get_event = "SELECT eventid, name, start, end, actual_end, opener FROM event;"
+                get_event = "SELECT eventid, name, start, end, actual_end, opener FROM event ORDER BY start;"
                 cursor.execute(get_event)
                 entries = cursor.fetchall()
             return render_template('events.html', entries=entries)

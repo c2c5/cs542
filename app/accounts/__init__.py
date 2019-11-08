@@ -365,7 +365,7 @@ def resetPayment():
 def Scores():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_scores_query = "SELECT eventid, score from TournamentParticipants"
-        cursor.execute(get_scores_query)
+        get_scores_query = "SELECT E.name, T.score, E.tournament_result_unit AS unit from TournamentParticipants T, Event E WHERE T.eventid=E.eventid AND userid=%s"
+        cursor.execute(get_scores_query, current_user()["userid"])
         result = cursor.fetchall()
     return render_template('TournamentParticipants.html', records=result)
