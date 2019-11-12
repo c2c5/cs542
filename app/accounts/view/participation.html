@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}[Admin] Participation Report{% endblock %}
+{% block header %}
+  <h1>Participation Report</h1>
+{% endblock %}
+
+{% block page %}
+
+<div class="form-group">
+  <div class="row">
+    <div class="input-group col col-md-6">
+
+    </div>
+    <div class=" col col-md-4">
+      <form method="get">
+        <div class="input-group">
+          {% for arg, val in request.args.items() %}
+          {% if (arg != "name") %}
+          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+          {% endif %}
+          {% endfor %}
+          <input type="text" class="form-control" placeholder="Student Name" aria-label="Student's name" aria-describedby="basic-addon2" name="name" value="{{ search_name }}">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="dropdown col-md-2">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right">
+        {{ octicon("zap", style="fill:white") }} Filter
+      </button>
+      <div class="dropdown-menu">
+        <table class="table">
+          {% for filt in ["paid", "waiver", "cpr", "PE", "setter", "opener", "admin"] %}
+          <tr>
+            <td style="border:none">{{ filt.capitalize() }}</td>
+            <td style="border:none">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <form method="GET">
+                  <input style="display:none" type="hidden" name="{{filt}}" value="1" />
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt and arg != "page") %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-success">{{ octicon("check", style="fill:white") }}</button>
+                </form>
+                <form method="GET">
+                  <input style="display:none" type="hidden" name="{{filt}}" value="0" />
+                  {% for arg, val in request.args.items() %}
+                  {% if (arg != filt and arg != "page") %}
+                  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+                  {% endif %}
+                  {% endfor %}
+                  <button type="submit" class="btn btn-danger">{{ octicon("x", style="fill:white") }}</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if (request.args.keys()|reject("==", "page")|list)|length > 0 %}
+<p><strong>Active Filters</strong> <span class="text-muted"><small>Click on a filter to clear it</small></span></p>
+{% for filt, filtval in request.args.items() %}
+  {% if filtval != "" and filt != "page" %}
+  <form method="GET" style="display: inline-block;">
+    {% for arg, val in request.args.items() %}
+      {% if (arg != filt and arg != "page") %}
+      <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="btn btn-info" style="display: inline-block;">{{ octicon("tag", style="fill:white") }} {{filt.capitalize()}}: {{ "Yes" if filtval=="1" else ( filtval if filtval !="0" else "No") }}</button>
+  </form>
+  {% endif %}
+{% endfor %}
+<form method="GET" style="display: inline-block;">
+  <button type="submit" class="btn btn-danger" style="display: inline-block;">{{ octicon("x", style="fill:white") }} Clear all filters</button>
+</form>
+<br /><br />
+{% endif %}
+
+<table class="table">
+  <tr>
+    <th>Student Name</th>
+    <th>Hours</th>
+  </tr>
+  {% for user in userlist %}
+  <tr id="user-{{ user['userid'] }}">
+    <td>{{ user["student_name"] }}</td>
+    <td>{{ user["hours"] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<div style="text-align: center; width:100%; display:block">
+    <nav style="display: inline-block;">
+      <ul class="pagination">
+        <form method="GET">
+          {% for arg, val in request.args.items() %}
+            {% if (arg != "page") %}
+            <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+            {% endif %}
+          {% endfor %}
+          <input style="display:none" type="hidden" name="page" value="{{ page-1 }}" />
+          <li class="page-item {{ 'disabled' if page==0 }} "><button type="submit" class="page-link" href="#">&laquo;</button></li>
+        </form>
+        {% for p in pages %}
+          <form method="GET">
+            {% for arg, val in request.args.items() %}
+              {% if (arg != "page") %}
+              <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+              {% endif %}
+            {% endfor %}
+            <input style="display:none" type="hidden" name="page" value="{{ p }}" />
+            <li class="page-item {{ 'active' if page==p }}"><button type="submit" class="page-link" href="#">{{p+1}}</button></li>
+          </form>
+        {% endfor %}
+        <form method="GET">
+          {% for arg, val in request.args.items() %}
+            {% if (arg != "page") %}
+            <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+            {% endif %}
+          {% endfor %}
+          <input style="display:none" type="hidden" name="page" value="{{ page+1 }}" />
+          <li class="page-item {{ 'disabled' if page==maxpage }} "><button type="submit" class="page-link" href="#">&raquo;</button></li>
+        </form>
+      </ul>
+    </nav>
+    <br />
+    <p>Showing {{page*limit+1 if count > 0 else 0}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p></count>
+
+{% endblock %}

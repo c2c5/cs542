@@ -361,6 +361,123 @@ def resetPayment():
 # Other Stuff #
 ###############
 
+@accounts.route('/report/participation')
+def participation():
+    # Page Limit
+    LIMIT = 10
+
+    db = database.get_db()
+    if request.method == "GET":
+        query_conditions = []
+        for arg, val in request.args.items():
+            if (arg == "paid"):
+                query_conditions.append("paid=%s" % db.escape(val))
+            elif (arg == "waiver"):
+                query_conditions.append("waiver=%s" % db.escape(val))
+            elif (arg == "cpr"):
+                query_conditions.append("cpr_certified=%s" % db.escape(val))
+            elif (arg == "PE"):
+                query_conditions.append("pe_credit=%s" % db.escape(val))
+            elif (arg == "name"):
+                query_conditions.append("student_name LIKE %s" % db.escape("%" + val + "%"))
+            elif (arg == "setter"):
+                query_conditions.append("roles " + ("NOT " if val=="0" else "") + "LIKE '%setter%'")
+            elif (arg == "opener"):
+                query_conditions.append("roles " + ("NOT " if val=="0" else "") + "LIKE '%opener%'")
+            elif (arg == "admin"):
+                query_conditions.append("roles " + ("NOT " if val=="0" else "") + "LIKE '%admin%'")
+
+        with db.cursor() as cursor:
+            query = "SELECT COUNT(*) as ct FROM UserDataWithRole"
+            if (len(query_conditions) > 0):
+                query += " WHERE " + (" AND ".join(query_conditions))
+            cursor.execute(query)
+            count = cursor.fetchone()["ct"]
+        # Pagination calculations
+        page = int(request.args["page"]) if "page" in request.args else 0
+        offset = page*LIMIT
+        maxpage = math.ceil(count/LIMIT)-1
+        pages = []
+        if (maxpage >= 2):
+            if (page == 0):
+                pages.append(0)
+                pages.append(1)
+                pages.append(2)
+            elif (page == maxpage):
+                pages.append(maxpage-2)
+                pages.append(maxpage-1)
+                pages.append(maxpage)
+            else:
+                pages.append(page-1)
+                pages.append(page)
+                pages.append(page+1)
+        elif (maxpage == 1):
+            pages.append(0)
+            pages.append(1)
+        else:
+            pages.append(0)
+
+        with db.cursor() as cursor:
+            query = "SELECT U.userid, U.student_name, IFNULL(SUM(total_time),0.0) as hours FROM UserDataWithRole U LEFT JOIN TimeEntry ON U.userid=TimeEntry.userid "
+            if (len(query_conditions) > 0):
+                query += " WHERE " + (" AND ".join(query_conditions))
+            query += "GROUP BY U.userid ORDER BY hours DESC LIMIT %s OFFSET %s" % (db.escape(LIMIT), db.escape(offset))
+            cursor.execute(query)
+            result = cursor.fetchall()
+
+        return render_template('participation.html', userlist=result, pages=pages, page=page, maxpage=maxpage, limit=LIMIT, count=count, search_name = request.args["name"] if "name" in request.args else "")
+    elif request.method == "POST":
+        return "no pls"
+        """param = None
+        val = None
+        for attr in ["paid", "waiver", "cpr_certified", "pe_credit"]:
+            if attr in request.form:
+                param = attr
+                val = request.form[attr]
+                break
+        if not param == None:
+            if ( 'admin' in current_user_roles() or ((param == "paid" or param == "waiver") and int(val) == 1)):
+                with db.cursor() as cursor:
+                    userupdate = "UPDATE UserData SET " + param + "=%s WHERE userid=%s"
+                    cursor.execute(userupdate, (val, request.form["userid"]))
+                    db.commit()
+                return redirect(url_for('accounts.admin', **request.args))
+            else:
+                abort(403)
+
+        if ( 'admin' in current_user_roles() ):
+            for attr in ["setter", "opener", "admin"]:
+                if attr in request.form:
+                    param = attr
+                    val = request.form[attr]
+                    break
+            if (current_user()["userid"] == int(request.form["userid"]) and param == "admin" and int(val) == 0):
+                flash("You cannot demote yourself", "danger")
+                return redirect(url_for('accounts.admin', **request.args))
+            if not param == None:
+                with db.cursor() as cursor:
+                    userupdate = None
+                    if (int(val) == 1):
+                        userupdate = "INSERT INTO UserRoles VALUES(%s,%s)"
+                    else:
+                        userupdate = "DELETE FROM UserRoles WHERE userid=%s AND role=%s"
+                    cursor.execute(userupdate, (request.form["userid"], param))
+                    db.commit()
+                return redirect(url_for('accounts.admin', **request.args))
+
+            if ("delete" in request.form):
+                with db.cursor() as cursor:
+                    userdel = "DELETE FROM User WHERE userid=%s"
+                    cursor.execute(userdel, (request.form["delete"]))
+                db.commit()
+                return redirect(url_for('accounts.admin', **request.args))
+
+            abort(400)
+        else:
+            abort(403)
+        """
+    return render_template('participation.html')
+
 @accounts.route('/scores')
 def Scores():
     db = database.get_db()
