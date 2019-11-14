@@ -5,23 +5,31 @@
 {% endblock %}
 
 {% block page %}
-<table class="table">
-	<tr>
-		<th>Name</th>
-		<th>Start Time</th>
-		<th>End Time</th>
+<table class="table table-borderless table-hover" style="width: 80%; border-collapse:collapse;">
+	<tr style="text-align: center;">
+		<th style="width: 10%;">Name</th>
+		<th style="width: 30%;">Start Time</th>
+		<th style="width: 30%;">End Time</th>
 	</tr>
 	{% for entry in entries %}
-	<tr>
+	<tr style="text-align: center;" id="event-{{ entry.eventid }}">
 		<td>{{ entry.name }}</td>
 		<td>{{ entry.start }}</td>
 		<td>{{ entry.end }}</td>
-		<td><a class="btn btn-info" href="{{ url_for('events.show_info', id=entry.eventid) }}">Info</a></td>
+		<td hidden>{{ entry.description }}</td>
+		<td hidden>{{ entry.max_participants }}</td>
+		<td hidden>{{ entry.cost }}</td>
+		<td hidden>{{ entry.paid_members_only }}</td>
+		<td hidden>{{ entry.student_name }}</td>
+		<td style="padding: 5px;"><button id="event_info" class="btn btn-info" data-toggle="modal" data-target="#ShowInfoModal">{{ octicon("info", style="fill:white") }}</button></td>
 		{% if 'admin' in current_user_roles() %}
-		<td><a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">Edit</a></td>
+		<td style="padding: 5px;"><a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">{{ octicon("pencil", style="fill:white") }}</a></td>
+		<td style="padding: 5px;">
+			<button id="delete_event" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+		</td>
 		{% endif %}
 		{% if not entry.actual_end and ('admin' in current_user_roles() or entry.opener == current_user()['userid']) %}
-		<td>
+		<td style="padding: 5px;">
 			<form method="post">
 				<input type="hidden" name="eventid" value="{{ entry.eventid }}">
 				<button type="submit" class="btn btn-success">Open</button>
@@ -31,4 +39,87 @@
 	</tr>
 	{% endfor %}
 </table>
+<div class="modal fade" id="ShowInfoModal" tabindex="-1" role="dialog" aria-labelledby="event_name" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="event_name"></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="card">
+					<div class="card-header">Description</div>
+					<div id="des" class="card-body"></div>
+					<div class="card-header">Start Time</div>
+					<div id="start" class="card-body"></div>
+					<div class="card-header">End Time</div>
+					<div id="end" class="card-body"></div>
+					<div class="card-header">Max Participants</div>
+					<div id="mp" class="card-body"></div>
+					<div class="card-header">Cost</div>
+					<div id="cost" class="card-body"></div>
+					<div class="card-header">Paid Members Only?</div>
+					<div id="pmo" class="card-body"></div>
+					<div class="card-header">Opener</div>
+					<div id="sname" class="card-body"></div>
+				</div>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModal">Confirm Event Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <span id="eventNameToDelete"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <form method="post">
+          <input type="hidden" name="delete" value="" id="confirm_event_id"/>
+          <button type="submit" class="btn btn-danger">Yes, Really Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).on("click", "#delete_event", function () {
+    var id = $(this).parent().closest('tr').attr("id").split("-")[1]
+    var name = $(this).parent().closest('tr').children(1).html()
+    $("#confirm_event_id").val(id)
+    $("#eventNameToDelete").html(name)
+ });
+</script>
+<script>
+  $(document).on("click", "#event_info", function () {
+    var name = $(this).parent().closest('tr').children(1).eq(0).html()
+    var start = $(this).parent().closest('tr').children(1).eq(1).html()
+    var end = $(this).parent().closest('tr').children(1).eq(2).html()
+    var des = $(this).parent().closest('tr').children(1).eq(3).html()
+    var mp = $(this).parent().closest('tr').children(1).eq(4).html()
+    var cost = $(this).parent().closest('tr').children(1).eq(5).html()
+    var pmo = $(this).parent().closest('tr').children(1).eq(6).html()
+    var sname = $(this).parent().closest('tr').children(1).eq(7).html()
+    $("#event_name").html(name)
+    $("#des").html(des)
+    $("#start").html(start)
+    $("#end").html(end)
+    $("#mp").html(mp)
+    $("#cost").html(cost)
+    $("#pmo").html(pmo)
+    $("#sname").html(sname)
+ });
+</script>
 {% endblock %}

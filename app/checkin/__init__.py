@@ -39,6 +39,11 @@ def PE():
 @require_oneof_roles('admin', 'opener')
 def checkinout(id):
     db = database.get_db()
+    tournament_info = "SELECT tournament_result_unit AS unit FROM event WHERE eventid=%s"
+    with db.cursor() as cursor:
+        cursor.execute(tournament_info, id)
+        tour_infos = cursor.fetchall()
+    print(tour_infos)
 
     if request.method == "POST":
         with db.cursor() as cursor:
@@ -79,7 +84,7 @@ def checkinout(id):
                                          "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
                         cursor.execute(get_view_query, id)
                         check_out = cursor.fetchall()
-                        return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                        return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
                     else:
                         userid = userid[0]['userid']
                     check_userid_query = "SELECT count(*) AS c FROM TimeEntry " +\
@@ -105,7 +110,7 @@ def checkinout(id):
                                                  "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
                                 cursor.execute(get_view_query, id)
                                 result = cursor.fetchall()
-                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
                             else:
                                 flash('Check in error', 'danger')
                                 get_view_query = "SELECT student_name AS Name " + \
@@ -113,7 +118,7 @@ def checkinout(id):
                                                  "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
                                 cursor.execute(get_view_query, id)
                                 result = cursor.fetchall()
-                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
                         except pymysql.InternalError as e:
                             flash(e.args[1], 'danger')
                             get_view_query = "SELECT student_name AS Name " + \
@@ -121,7 +126,7 @@ def checkinout(id):
                                              "WHERE T.userid = U.userid AND eventid = %s AND T.end is null"
                             cursor.execute(get_view_query, id)
                             result = cursor.fetchall()
-                            return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                            return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
 
 
                     if count != 0:
@@ -146,7 +151,7 @@ def checkinout(id):
                                                  "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
                                 cursor.execute(get_view_query, id)
                                 check_out = cursor.fetchall()
-                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
                             else:
                                 flash('Something missing in the account', 'danger')
                                 get_view_query = "SELECT student_name AS Name " + \
@@ -159,7 +164,7 @@ def checkinout(id):
                                                  "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
                                 cursor.execute(get_view_query, id)
                                 check_out = cursor.fetchall()
-                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                                return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
                         elif cc[0]['c'] == 1:
                             flash("The student has already checked out", "success")
                             get_view_query = "SELECT student_name AS Name " + \
@@ -172,7 +177,7 @@ def checkinout(id):
                                              "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
                             cursor.execute(get_view_query, id)
                             check_out = cursor.fetchall()
-                            return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+                            return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
     else:
         with db.cursor() as cursor:
             get_view_query = "SELECT student_name AS Name " + \
@@ -185,4 +190,4 @@ def checkinout(id):
                              "WHERE T.userid = U.userid AND eventid = %s AND T.end is not null"
             cursor.execute(get_view_query, id)
             check_out = cursor.fetchall()
-        return render_template('checkinout.html', id=id, records=result, check_outs=check_out)
+        return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)

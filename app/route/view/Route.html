@@ -1,25 +1,26 @@
 {%extends 'base.html' %}
-
-<h1> {% block title %}Routes{% endblock %} </h1>
-
+{% block title %}Routes{% endblock %}
 {% block header %}
+    <h1>Routes Menu</h1>
+{% endblock %}
 
-<div>
-    <center>
-       <font size="8" face="Verdana" color="black" >All Routes</font>
-    </center>
+{% block page %}
+<div class="container">
+    <div class="row">
+        {% for route in routes %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img class="card-img-top" src="/static/RoutePictures/{{ route['picture'] }}">
+                <div class="card-body">
+                    <p>{{ octicon("rocket") }} Difficulty {{ route['difficulty'] }}</p>
+                    <p>Setter@  {{ route['student_name'] }}</p>
+                    <a href="#" class="btn btn-primary">More information</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
-<hr style= "border:3px solid black" size=1 >
-    {% for route in routes%}
-        <p style="line-height:70%">
-            <img src="/static/RoutePictures/{{ route['picture'] }}" height="400" width="500">
-
-            <font size="5" color="black" style="word-spacing: 10px" face="serif"> &nbsp;&nbsp;&nbsp;{{ octicon("rocket") }} Difficulty {{ route['difficulty'] }}</font>
-            <br>
-                <font size="3" color="black" style="word-spacing: 10px">Setter@  {{ route['student_name'] }}</font>
-        </p>
-<hr width="1120" align="left" style="border: 1px solid black">
-    {% endfor %}
 {% endblock %}
 
 

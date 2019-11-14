@@ -29,7 +29,7 @@ def Route():
 
 
 @routes.route('/SetRoutes',methods=["GET","POST"])
-@require_oneof_roles("setter")
+@require_oneof_roles("setter", "admin")
 def SetRoutes():
     db = database.get_db()
     with db.cursor() as cursor:
