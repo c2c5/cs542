@@ -1,9 +1,10 @@
 {% extends 'minimum.html' %}
 
 <!-- Pass some attributes into the body tag -->
-{% block bodyattrs %}style="background:#FAFAFA";{% endblock %}
+{% block bodyattrs %}style="background:#FAFAFA; display: flex; min-height: 100vh; flex-direction: column;"{% endblock %}
 
 {% block page %}
+<div style="flex: 1;">
 <div class="jumbotron jumbotron-fluid text-light" style="padding-top:0px;padding-bottom:100px;background:url({% block headerphoto %}{% endblock %});background-position:center;background-size:cover">
   <nav class="navbar navbar-expand-lg navbar-dark" style="margin-bottom:60px; background:rgba(0,0,0,0.5);">
     <div class="container">
@@ -16,7 +17,16 @@
   </div>
 </div>
 <div class="container">
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
     <h1>{% block header %}{% endblock %}</h1>
     {% block content %}{% endblock %}
 </div>
+</div>
+<footer>
+    <div class="container">
+        {% include 'footer.html' %}
+    </div>
+</footer>
 {% endblock %}
