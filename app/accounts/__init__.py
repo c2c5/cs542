@@ -6,6 +6,8 @@ import bcrypt
 import hashlib
 import secrets
 import math
+import pymysql
+
 
 accounts = Blueprint('accounts', __name__,
                         template_folder='view')
@@ -218,10 +220,14 @@ def admin(template="admin.html"):
                 break
         if not param == None:
             if ( 'admin' in current_user_roles() or ((param == "paid" or param == "waiver") and int(val) == 1)):
-                with db.cursor() as cursor:
-                    userupdate = "UPDATE UserData SET " + param + "=%s WHERE userid=%s"
-                    cursor.execute(userupdate, (val, request.form["userid"]))
-                    db.commit()
+                try:
+                    with db.cursor() as cursor:
+                        userupdate = "UPDATE UserData SET " + param + "=%s WHERE userid=%s"
+                        cursor.execute(userupdate, (val, request.form["userid"]))
+                        db.commit()
+                except pymysql.InternalError as e:
+                    ### Trigger could create an error. Pass it thorugh here.
+                    flash(e.args[1], 'danger')
                 return redirect(url_for('accounts.admin', **request.args))
             else:
                 abort(403)
@@ -236,14 +242,18 @@ def admin(template="admin.html"):
                 flash("You cannot demote yourself", "danger")
                 return redirect(url_for('accounts.admin', **request.args))
             if not param == None:
-                with db.cursor() as cursor:
-                    userupdate = None
-                    if (int(val) == 1):
-                        userupdate = "INSERT INTO UserRoles VALUES(%s,%s)"
-                    else:
-                        userupdate = "DELETE FROM UserRoles WHERE userid=%s AND role=%s"
-                    cursor.execute(userupdate, (request.form["userid"], param))
-                    db.commit()
+                try:
+                    with db.cursor() as cursor:
+                        userupdate = None
+                        if (int(val) == 1):
+                            userupdate = "INSERT INTO UserRoles VALUES(%s,%s)"
+                        else:
+                            userupdate = "DELETE FROM UserRoles WHERE userid=%s AND role=%s"
+                        cursor.execute(userupdate, (request.form["userid"], param))
+                        db.commit()
+                except pymysql.InternalError as e:
+                    ### Trigger could create an error. Pass it thorugh here.
+                    flash(e.args[1], 'danger')
                 return redirect(url_for('accounts.admin', **request.args))
 
             if ("delete" in request.form):
