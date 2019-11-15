@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block page %}
-
+<br /><br />
 <div class="form-group">
   <div class="row">
     <div class="input-group col col-md-6">
@@ -91,33 +91,33 @@
   <tr>
     <th>Student Name</th>
     <th>Join Date</th>
-    <th>Membership Paid</th>
-    <th>Waiver signed</th>
-    <th>CPR Certified</th>
-    <th>PE Credit?</th>
-    <th>Setter?</th>
-    <th>Opener?</th>
-    <th>Admin?</th>
+    <th width="120">Membership Paid</th>
+    <th width="125">Waiver signed</th>
+    <th width="125">CPR Certified</th>
+    <th width="120">PE Credit?</th>
+    <th width="30">Setter?</th>
+    <th width="30">Opener?</th>
+    <th width="30">Admin?</th>
     <th>Actions</th>
   </tr>
   {% for user in userlist %}
   <tr id="user-{{ user['userid'] }}">
     <td>{{ user["student_name"] }}</td>
     <td>{{ user["join_date"] }}</td>
-    <td>
+    <td style="border-left: 1px solid #DFDFDF;">
       <form method="post">
         <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
         {% if user["paid"] == 0 %}
           {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
             <input type="hidden" name="paid" value="1"/>
-            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }}<br /> Not Paid</button>
+            <button type="submit" class="btn btn-danger btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Not Paid</button>
           {% else %}
             <span class="text-danger">Not Paid</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="paid" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }}<br /> Paid</button>
+            <button type="submit" class="btn btn-success btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("credit-card", style="fill:white") }} Paid</button>
           {% else %}
             <span class="text-success">Paid</span>
           {% endif %}
@@ -130,14 +130,14 @@
         {% if user["waiver"] == 0 %}
           {% if 'admin' in current_user_roles() or 'opener' in current_user_roles() %}
             <input type="hidden" name="waiver" value="1"/>
-            <button type="submit" class="btn btn-danger" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }}<br /> Not Signed</button>
+            <button type="submit" class="btn btn-danger btn-sm mr-0" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Unsigned</button>
           {% else %}
             <span class="text-danger">Not Signed</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="waiver" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }}<br /> Signed</button>
+            <button type="submit" class="btn btn-success btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("pencil", style="fill:white") }} Signed</button>
           {% else %}
             <span class="text-success">Signed</span>
           {% endif %}
@@ -150,34 +150,34 @@
         {% if user["cpr_certified"] == 0 %}
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="cpr_certified" value="1"/>
-            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }}<br /> Not Certified</button>
+            <button type="submit" class="btn btn-secondary btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} No Cert</button>
           {% else %}
             <span class="text-secondary">Not Certified</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="cpr_certified" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }}<br /> Certified</button>
+            <button type="submit" class="btn btn-success btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("heart", style="fill:white") }} Certified</button>
           {% else %}
             <span class="text-success">Certified</span>
           {% endif %}
         {% endif %}
       </form>
     </td>
-    <td>
+    <td style="border-right: 1px solid #DFDFDF;">
       <form method="post">
         <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
         {% if user["pe_credit"] == 0 %}
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="pe_credit" value="1"/>
-            <button type="submit" class="btn btn-secondary" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }}<br /> No PE Credit</button>
+            <button type="submit" class="btn btn-secondary btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }} PE</button>
           {% else %}
             <span class="text-secondary">No PE Credit</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="pe_credit" value="0"/>
-            <button type="submit" class="btn btn-success" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }}<br /> PE Credit</button>
+            <button type="submit" class="btn btn-success btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }} No PE</button>
           {% else %}
             <span class="text-success">PE Credit</span>
           {% endif %}
@@ -187,14 +187,14 @@
     {% for role in ["setter", "opener", "admin"] %}
     <td>
       {% if 'admin' in current_user_roles() %}
-        <form method="post">
+        <form method="post" style="text-align: center;">
           <input type="hidden" name="userid" value="{{ user['userid'] }}"/>
           {% if role in user["roles"] %}
             <input type="hidden" name="{{ role }}" value="0"/>
-            <button type="submit" class="btn btn-success" href="#">{{ octicon("check", style="fill:white") }}</button>
+            <button type="submit" class="btn btn-success mr-0" href="#">{{ octicon("check", style="fill:white") }}</button>
           {% else %}
             <input type="hidden" name="{{ role }}" value="1"/>
-            <button type="submit" class="btn btn-secondary" href="#">{{ octicon("x", style="fill:white") }}</button>
+            <button type="submit" class="btn btn-secondary mr-0" href="#">{{ octicon("x", style="fill:white") }}</button>
           {% endif %}
         </form>
       {% else %}
@@ -206,11 +206,11 @@
       {% endif %}
     </td>
     {% endfor %}
-      <td>
+      <td style="width:100px; border-left: 1px solid #DFDFDF;">
           {% if 'admin' in current_user_roles() %}
-            <button id="deleteUser" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+            <button id="deleteUser" class="btn btn-danger btn-sm" style="display:inline-block" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
           {% endif %}
-          <a class="btn btn-secondary" href="{{ url_for('accounts.edit', id=user['userid']) }}">{{ octicon("pencil", style="fill:white") }}</a>
+          <a class="btn btn-secondary btn-sm" style="display:inline-block" href="{{ url_for('accounts.edit', id=user['userid']) }}">{{ octicon("pencil", style="fill:white") }}</a>
       </td>
   </tr>
   {% endfor %}

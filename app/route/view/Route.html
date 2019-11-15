@@ -1,10 +1,13 @@
-{%extends 'base.html' %}
+{% extends 'headerhero.html' %}
 {% block title %}Routes{% endblock %}
 {% block header %}
-    <h1>Routes Menu</h1>
 {% endblock %}
+{% block headerphoto %}/static/banner.jpg{% endblock %}
+{% block headertitle %}Routes{% endblock %}
+{% block headersubtitle %}Current climbing problems in the cave{% endblock %}
 
-{% block page %}
+{% block content %}
+<div>
 <div class="container">
     <div class="row">
         {% for route in routes %}
@@ -13,7 +16,7 @@
                 <img class="card-img-top" src="/static/RoutePictures/{{ route['picture'] }}">
                 <div class="card-body">
                     <p>{{ octicon("rocket") }} Difficulty {{ route['difficulty'] }}</p>
-                    <p>Setter@  {{ route['student_name'] }}</p>
+                    <p>Setter: {{ route['student_name'] }}</p>
                     <a href="#" class="btn btn-primary">More information</a>
                 </div>
             </div>
