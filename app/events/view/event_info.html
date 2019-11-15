@@ -1,12 +1,13 @@
-{% extends 'base.html' %}
-{% block title %}Event Infomation{% endblock %}
+{% extends 'headerhero.html' %}
+{% block title %}Event Information - {{entries[0].name}}{% endblock %}
 {% block header %}
-{% for entry in entries %}
-  <h1>{{ entry.name }}</h1>
-{% endfor %}
+{{entries[0].name}}
 {% endblock %}
+{% block headerphoto %}/static/banner3.jpg{% endblock %}
+{% block headertitle %}Event Information{% endblock %}
+{% block headersubtitle %}{% endblock %}
 
-{% block page %}
+{% block content %}
 {% for entry in entries %}
 <div class="card">
   <div class="card-header">Description</div>
