@@ -11,6 +11,9 @@
     </div>
     <div style="vertical-align:center; max-width:400px; display:inline-block;background:#FFF; padding:30px; border-radius:10px; border:1px solid #CCC">
         <h3 class="text-center">Returning Member Login</h3><br />
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
         <form method="post">
             <div class="form-group">
                 <label for="studentID" style="font-weight:bold">WPI Student ID Number</label>
