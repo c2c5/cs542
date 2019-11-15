@@ -76,9 +76,10 @@ def edit(id):
             with db.cursor() as cursor:
                 update_event = "UPDATE event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s, " + \
                     "opener=%s WHERE eventid=%s;"
+                opener = None if (request.form['opener'] == "None") else request.form['opener']
                 cursor.execute(update_event, (request.form['event_name'], request.form['description'],
                                                  request.form['start'], request.form['end'], request.form['max_participants'],
-                                                 request.form['cost'], request.form['PMO_Options'], request.form['opener'], id))
+                                                 request.form['cost'], request.form['PMO_Options'], opener, id))
                 if (cursor.rowcount == 1):
                     db.commit()
                     flash('Event infomation has been changed! ', 'success')
