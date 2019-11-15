@@ -170,14 +170,14 @@
         {% if user["pe_credit"] == 0 %}
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="pe_credit" value="1"/>
-            <button type="submit" class="btn btn-secondary btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }} PE</button>
+            <button type="submit" class="btn btn-secondary btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }} No PE</button>
           {% else %}
             <span class="text-secondary">No PE Credit</span>
           {% endif %}
         {% else %}        
           {% if 'admin' in current_user_roles() %}
             <input type="hidden" name="pe_credit" value="0"/>
-            <button type="submit" class="btn btn-success btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }} No PE</button>
+            <button type="submit" class="btn btn-success btn-sm mr-0 btn-block" style="margin-right:10px" href="#">{{ octicon("jersey", style="fill:white") }} PE</button>
           {% else %}
             <span class="text-success">PE Credit</span>
           {% endif %}
