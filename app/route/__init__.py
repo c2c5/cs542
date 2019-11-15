@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash
 from util import database
-from app.accounts.session import require_oneof_roles
+from app.accounts.session import require_oneof_roles, current_user, current_user_roles
 import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
@@ -44,7 +44,11 @@ def SetRoutes():
         with db.cursor() as cursor:
             difficulty = request.form["Difficulty"]
             picture = file.filename
-            set_by = request.form["SetBy"]
+
+            if ("admin" not in current_user_roles()):
+                set_by = current_user()["userid"]
+            else:
+                set_by = request.form["SetBy"]
             add_route_query = "INSERT INTO Route (set_by, difficulty, picture) VALUES " + \
                               "(%s, %s, %s);"
             cursor.execute(add_route_query, (set_by, difficulty, picture))

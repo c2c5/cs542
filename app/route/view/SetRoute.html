@@ -29,16 +29,17 @@ $(document).ready( function() {
             <input type="text" class="form-control" id="Difficulty" placeholder="1-10" name="Difficulty" required>
         </div>
     <hr>
-
+        {% if 'admin' in current_user_roles() %}
         <div class="form-group">
             <label for="SetBy"><b>SetBy</b></label>
             <select class="form-control" name="SetBy" id="SetBy">
 			    <option value="None">Select an Setter</option>
-			    {% for entry in entries %}
-			        <option value="{{ entry['userid'] }}">{{ entry.student_name }}</option>
-			    {% endfor %}
+                    {% for entry in entries %}
+                        <option value="{{ entry['userid'] }}">{{ entry.student_name }}</option>
+			        {% endfor %}
 		    </select>
         </div>
+        {% endif %}
     <hr>
 
     <label><b>UploadPhoto</b></label>
