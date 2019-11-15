@@ -37,8 +37,8 @@
     </div>
     <div class="col-md-1"></div>
     <div class="col-md-6" style="padding: 16px">
-        <table class="table table-borderless table-hover">
-            <tr style="text-align: center;">
+        <table class="table table-borderless table-hover" style="text-align: center;">
+            <tr>
                 <th>Signed-out Students</th>
                 <th>Total Time(hours)</th>
             </tr>
@@ -52,7 +52,7 @@
             {% endfor %}
             {% else %}
             {% for check_out in check_outs %}
-            <tr style="text-align: center;" id="{{ tour_info.unit }}">
+            <tr id="{{ tour_info.unit }}">
                 <td><button id="resultBotton" class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#resultModal">{{ check_out['Name'] }}</button></td>
                 <td>{{ check_out['Time'] }}</td>
             </tr>
@@ -75,6 +75,8 @@
         <form id="tour_result">
             <div class="input-group" style="width: 50%;">
                 <input type="text" name="result" class="form-control" placeholder="tournament result" aria-describedby="unit">
+                <input type="hidden" name="result_stuid" id="result_stuid" value="">
+                <input type="hidden" name="result_eventid" id="result_eventid" value="">
                 <div class="input-group-append">
                     <span class="input-group-text" id="unit"></span>
                 </div>

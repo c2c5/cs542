@@ -7,72 +7,80 @@
 {% block page %}
 <form method="post">
 	{% for entry in entries %}
-	<div class="form-group">
-		<label for='event_name'>Events Name</label>
-		<input type="text" name="event_name" id="event_name" class="form-control" value="{{entry.name}}">
+	<div class="input-group mb-4" style="width: 30%;">
+		<div class="input-group-prepend">
+			<span class="input-group-text" id='addon-name'>Events Name</span>
+		</div>
+		<input type="text" name="event_name" class="form-control" aria-label='Event Name' aria-describedby='addon-name' value="{{ entry.name }}">
 	</div>
-	<div class="form-group">
-		<label for='description'>Description</label>
-		<input type="text" name="description" id="description" class="form-control" value="{{entry.description}}"></input>
+	<div class="input-group mb-4">
+		<div class="input-group-prepend">
+			<span class="input-group-text">Description</span>
+		</div>
+		<textarea class="form-control" name="description" aria-label='Description'>{{ entry.description }}</textarea>
 	</div>
-	<div class="row">
-		<div class="col-sm-12">
-			<label for="start">Start Time</label>
-			<input type="text" name="start" class="form-control" id="start" value="{{entry.start}}">
+	<div class="container">
+		<div class="row">
+			<div class="input-group mb-4" style="width: 30%;">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="addon-start">Start Time</span>
+				</div>
+				<input type="text" name="start" class="form-control" id="start" aria-label='Start Time' aria-describedby='addon-start' value="{{ entry.start }}">
+			</div>
+			<span class='col-md-1'></span>
+			<div class="input-group mb-4" style="width: 30%;">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="addon-end">End Time</span>
+				</div>
+				<input type="text" name="end" class="form-control" id="end" aria-label='End Time' aria-describedby='addon-end' value="{{ entry.end }}">
+			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-sm-12">
-			<label for="end">End Time</label>
-			<input type="text" name="end" class="form-control" id="end" value="{{entry.end}}">
+	<div class="input-group mb-4" style="width: 20%;">
+		<div class="input-group-prepend">
+			<span class="input-group-text" id="addon-mp">Max Participants</span>
+		</div>
+		<input type="text" name="max_participants" class="form-control" aria-label='Max Participants' aria-describedby='addon-mp' value="{{ entry.max_participants }}">
+	</div>
+	<div class="input-group mb-4" style="width: 20%;">
+		<div class="input-group-prepend">
+			<span class="input-group-text" id="addon-cost">Cost</span>
+		</div>
+		<input type="text" name="cost" class="form-control" aria-label='Cost' aria-describedby='addon-cost' value="{{ entry.cost }}">
+		<div class="input-group-append">
+			<span class="input-group-text">$</span>
 		</div>
 	</div>
-	<div class="form-group">
-		<label for="max_participants">Max Participants</label>
-		<input type="text" name="max_participants" id="max_participants" class="form-control" value="{{entry.max_participants}}">
+	<div class="input-group mb-4" style="width: 22%;">
+		<div class="input-group-prepend">
+			<label class="input-group-text" for="PMO-select">Paid Member Only?</label>
+		</div>
+		<select class="custom-select" id='PMO-select' name='PMO_Options'>
+			{% if entry.paid_members_only == 1 %}
+			<option value="1" selected>Yes</option>
+			<option value="0">No</option>
+			{% else %}
+			<option value="1">Yes</option>
+			<option value="0" selected>No</option>
+			{% endif%}
+		</select>
 	</div>
-	<div class="form-group">
-		<label for="cost">Cost</label>
-		<input type="text" name="cost" id="cost" class="form-control" value="{{entry.cost}}">
-	</div>
-	<label for="PMO">Paid Member Only?</label>
-	{% if entry.paid_members_only == 1 %}
-	<div class="radio">
-		<label for="PMO_Yes">
-				<input type="radio" name="PMO_Options" id="yes" value=1 checked>Yes
-		</label>
-	</div>
-	<div class="radio">
-		<label for="PMO_NO">
-				<input type="radio" name="PMO_Options" id="no" value=0>No
-		</label>
-	</div>
-	{% else %}
-	<div class="radio">
-		<label for="PMO_Yes">
-				<input type="radio" name="PMO_Options" id="yes" value=1>Yes
-		</label>
-	</div>
-	<div class="radio">
-		<label for="PMO_NO">
-				<input type="radio" name="PMO_Options" id="no" value=0 checked>No
-		</label>
-	</div>
-	{% endif %}
-	<div class="form-group">
-		<label for="opener">Opener</label>
-		<select class="form-control" name="opener">
+	<div class="input-group mb-4" style="width: 30%;">
+		<div>
+			<label class="input-group-text" for="opener">Opener</label>
+		</div>
+		<select class="custom-select" name="opener" id="opener">
 			<option value="None">Select an Opener</option>
 			{% for opener in openers %}
 			{% if opener.userid == entry.opener %}
-			<option value="{{ opener.userid }}" selected="selected">{{ opener.student_name }}</option>
+			<option value="{{ opener['userid'] }}" selected>{{ opener.student_name }}</option>
 			{% else %}
-			<option value="{{ opener.userid }}">{{ opener.student_name }}</option>
+			<option value="{{ opener['userid'] }}">{{ opener.student_name }}</option>
 			{% endif %}
 			{% endfor %}
 		</select>
 	</div>
-	<button type="submit" class="btn btn-primary">Create</button>
+	<button type="submit" class="btn btn-primary">Submit</button>
 	{% endfor %}
 </form>
 <script type="text/javascript">

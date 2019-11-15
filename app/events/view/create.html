@@ -6,48 +6,64 @@
 
 {% block page %}
 <form method="post">
-	<div class="form-group">
-		<label for='event_name'>Events Name</label>
-		<input type="text" name="event_name" id="event_name" class="form-control" placeholder="event name" value="{{name}}">
+	<div class="input-group mb-4" style="width: 30%;">
+		<div class="input-group-prepend">
+			<span class="input-group-text" id='addon-name'>Events Name</span>
+		</div>
+		<input type="text" name="event_name" class="form-control" aria-label='Event Name' aria-describedby='addon-name'>
 	</div>
-	<div class="form-group">
-		<label for='description'>Description</label>
-		<textarea name="description" class="form-control" placeholder="description" rows="3"></textarea>
+	<div class="input-group mb-4">
+		<div class="input-group-prepend">
+			<span class="input-group-text">Description</span>
+		</div>
+		<textarea class="form-control" name="description" aria-label='Description'></textarea>
 	</div>
-	<div class="row">
-		<div class="col-sm-12">
-			<label for="start">Start Time</label>
-			<input type="text" name="start" class="form-control" id="start" placeholder="2019-01-01 00:00:00" dayViewHeaderFormat='MMMM YYYY'>
+	<div class="container">
+		<div class="row">
+			<div class="input-group mb-4" style="width: 30%;">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="addon-start">Start Time</span>
+				</div>
+				<input type="text" name="start" class="form-control" id="start" aria-label='Start Time' aria-describedby='addon-start'>
+			</div>
+			<span class='col-md-1'></span>
+			<div class="input-group mb-4" style="width: 30%;">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="addon-end">End Time</span>
+				</div>
+				<input type="text" name="end" class="form-control" id="end" aria-label='End Time' aria-describedby='addon-end'>
+			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-sm-12">
-			<label for="end">End Time</label>
-			<input type="text" name="end" class="form-control" id="end" placeholder="2019-01-01 00:00:00">
+	<div class="input-group mb-4" style="width: 20%;">
+		<div class="input-group-prepend">
+			<span class="input-group-text" id="addon-mp">Max Participants</span>
+		</div>
+		<input type="text" name="max_participants" class="form-control" aria-label='Max Participants' aria-describedby='addon-mp'>
+	</div>
+	<div class="input-group mb-4" style="width: 20%;">
+		<div class="input-group-prepend">
+			<span class="input-group-text" id="addon-cost">Cost</span>
+		</div>
+		<input type="text" name="cost" class="form-control" aria-label='Cost' aria-describedby='addon-cost'>
+		<div class="input-group-append">
+			<span class="input-group-text">$</span>
 		</div>
 	</div>
-	<div class="form-group">
-		<label for="max_participants">Max Participants</label>
-		<input type="text" name="max_participants" id="max_participants" class="form-control" placeholder="100" value="{{max}}">
+	<div class="input-group mb-4" style="width: 22%;">
+		<div class="input-group-prepend">
+			<label class="input-group-text" for="PMO-select">Paid Member Only?</label>
+		</div>
+		<select class="custom-select" id='PMO-select' name='PMO_Options'>
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</select>
 	</div>
-	<div class="form-group">
-		<label for="cost">Cost</label>
-		<input type="text" name="cost" id="cost" class="form-control" placeholder="50" value="{{cost}}">
-	</div>
-	<label for="PMO">Paid Member Only?</label>
-	<div class="radio">
-		<label for="PMO_Yes">
-				<input type="radio" name="PMO_Options" id="yes" value=1 checked>Yes
-		</label>
-	</div>
-	<div class="radio">
-		<label for="PMO_NO">
-				<input type="radio" name="PMO_Options" id="no" value=0>No
-		</label>
-	</div>
-	<div class="form-group">
-		<label for="opener">Opener</label>
-		<select class="form-control" name="opener" id="opener">
+	<div class="input-group mb-4" style="width: 30%;">
+		<div>
+			<label class="input-group-text" for="opener">Opener</label>
+		</div>
+		<select class="custom-select" name="opener" id="opener">
 			<option value="None">Select an Opener</option>
 			{% for entry in entries %}
 			<option value="{{ entry['userid'] }}">{{ entry.student_name }}</option>

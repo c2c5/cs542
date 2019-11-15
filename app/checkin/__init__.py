@@ -154,6 +154,8 @@ def checkinout(id):
                             cursor.execute(get_view_query_out, id)
                             check_out = cursor.fetchall()
                             return render_template('checkinout.html', id=id, records=result, check_outs=check_out, tour_infos=tour_infos)
+                # else:
+
     else:
         with db.cursor() as cursor:
             cursor.execute(get_view_query_in, id)
