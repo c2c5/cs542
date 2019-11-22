@@ -115,7 +115,7 @@ def EditRoutes(id):
             else:
                 flash('Difficulty should in 1-10', 'danger')
 
-        return render_template('Edit.html',setters = setters, old_data=old_data)
+        return render_template('EditRoute.html',setters = setters, old_data=old_data)
 
     else:
-        return render_template('Edit.html',setters = setters, old_data=old_data)
+        return render_template('EditRoute.html',setters = setters, old_data=old_data)
