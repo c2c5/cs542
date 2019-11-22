@@ -13,7 +13,8 @@ def show():
             db = database.get_db()
             with db.cursor() as cursor:
                 get_event = "SELECT e.eventid, e.name, e.start, e.end, e.actual_end, e.description, e.max_participants, " \
-                            "e.cost, e.paid_members_only, e.opener, u.student_name FROM event AS e LEFT JOIN user AS u ON e.opener=u.userid;"
+                            "e.cost, e.paid_members_only, e.opener, u.student_name FROM Event AS e LEFT JOIN User AS u ON e.opener=u.userid;"
+
                 cursor.execute(get_event)
                 entries = cursor.fetchall()
             return render_template('events.html', entries=entries)
@@ -23,7 +24,7 @@ def show():
         db = database.get_db()
         with db.cursor() as cursor:
             if 'delete' in request.form:
-                delete_event = "DELETE FROM event WHERE eventid=%s;"
+                delete_event = "DELETE FROM Event WHERE eventid=%s;"
                 cursor.execute(delete_event, request.form['delete'])
                 if cursor.rowcount == 1:
                     db.commit()
@@ -50,7 +51,7 @@ def show_info(id):
         get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only FROM Event WHERE eventid=%s;"
         cursor.execute(get_event_info, id)
         entries = cursor.fetchall()
-        get_opener = "SELECT student_name FROM user AS u, event AS e WHERE u.userid = e.opener and e.eventid=%s;"
+        get_opener = "SELECT student_name FROM User AS u, Event AS e WHERE u.userid = e.opener and e.eventid=%s;"
         cursor.execute(get_opener, id)
         openers = cursor.fetchall()
         return render_template('event_info.html', entries=entries, openers=openers)
@@ -60,10 +61,10 @@ def edit(id):
     if request.method == "GET":
         db = database.get_db()
         with db.cursor() as cursor:
-            get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only, opener FROM event WHERE eventid=%s;"
+            get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only, opener FROM Event WHERE eventid=%s;"
             cursor.execute(get_event_info, id)
             entries = cursor.fetchall()
-            get_opener = "SELECT userid, student_name from userdatawithrole where roles LIKE '%opener%'"
+            get_opener = "SELECT userid, student_name from UserDataWithRole where roles LIKE '%opener%'"
             cursor.execute(get_opener)
             openers = cursor.fetchall()
         try:
@@ -74,7 +75,7 @@ def edit(id):
         try:
             db = database.get_db()
             with db.cursor() as cursor:
-                update_event = "UPDATE event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s, " + \
+                update_event = "UPDATE Event SET name=%s, description=%s, start=%s, end=%s, max_participants=%s, cost=%s, paid_members_only=%s, " + \
                     "opener=%s WHERE eventid=%s;"
                 opener = None if (request.form['opener'] == "None") else request.form['opener']
                 cursor.execute(update_event, (request.form['event_name'], request.form['description'],
@@ -95,14 +96,14 @@ def edit(id):
 def create():
     db = database.get_db()
     with db.cursor() as cursor:
-        get_opener = "SELECT userid, student_name from userdatawithrole where roles LIKE '%opener%';"
+        get_opener = "SELECT userid, student_name from UserDataWithRole where roles LIKE '%opener%';"
         cursor.execute(get_opener)
         entries = cursor.fetchall()
     if request.method == "POST":
         try:
             db = database.get_db()
             with db.cursor() as cursor:
-                add_event_query = "INSERT INTO event(name, description, start, end, max_participants, cost, paid_members_only, opener) VALUES" + \
+                add_event_query = "INSERT INTO Event(name, description, start, end, max_participants, cost, paid_members_only, opener) VALUES" + \
                                   "(%s, %s, %s, %s, %s, %s, %s, %s);"
                 cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
                                                  request.form['start'], request.form['end'], request.form['max_participants'],
@@ -131,7 +132,7 @@ def show_my_events():
             db = database.get_db()
             with db.cursor() as cursor:
                 get_event = "SELECT e.name AS name, t.start AS start, t.end AS end, t.total_time AS total_time FROM " + \
-                            "timeentry AS t, event AS e WHERE e.eventid=t.eventid and t.userid=%s;"
+                            "TimeEntry AS t, Event AS e WHERE e.eventid=t.eventid and t.userid=%s;"
                 cursor.execute(get_event, user['userid'])
                 entries = cursor.fetchall()
                 return render_template('my_events.html', entries=entries)

@@ -55,16 +55,16 @@ def checkinout(id):
         with db.cursor() as cursor:
             for arg in request.form:
                 if arg == 'eventid':
-                    select = "SELECT userid as id from timeentry WHERE eventid=%s"
+                    select = "SELECT userid as id from TimeEntry WHERE eventid=%s"
                     cursor.execute(select, id)
                     userids = cursor.fetchall()
                     checkout_condition = []
                     if userids:
                         for userid in userids:
                             checkout_condition.append("userid=%s" % db.escape(userid['id']))
-                        checkout = "UPDATE timeentry SET end=CURRENT_TIMESTAMP() WHERE eventid=%s AND " + (" OR ".join(checkout_condition))
+                        checkout = "UPDATE TimeEntry SET end=CURRENT_TIMESTAMP() WHERE eventid=%s AND " + (" OR ".join(checkout_condition))
                         cursor.execute(checkout, id)
-                    close_event = "UPDATE event SET actual_end=CURRENT_TIMESTAMP() WHERE eventid=%s;"
+                    close_event = "UPDATE Event SET actual_end=CURRENT_TIMESTAMP() WHERE eventid=%s;"
                     cursor.execute(close_event, request.form['eventid'])
                     if cursor.rowcount == 1:
                         db.commit()
