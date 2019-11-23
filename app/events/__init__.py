@@ -3,6 +3,7 @@ from app.accounts.session import current_user
 from jinja2 import TemplateNotFound
 from util import database
 import pymysql
+import math
 
 events = Blueprint('events', __name__, template_folder='view')
 
@@ -12,12 +13,78 @@ def show():
         try:
             db = database.get_db()
             with db.cursor() as cursor:
+
+                # Filtration criteria
+                query_conditions = []
+                for arg, val in request.args.items():
+                    if (arg == "free" and val is not "" and int(val) == 1):
+                        query_conditions.append("paid_members_only=0 AND cost=0")
+                    elif (arg == "free" and val is not "" and int(val) == 0):
+                        query_conditions.append("paid_members_only=1 AND cost=0")
+                    elif (arg == "tournament" and val is not "" and int(val) == 1):
+                        query_conditions.append("tournament_result_unit IS NOT NULL and tournament_result_ordering IS NOT NULL")
+                    elif (arg == "tournament" and val is not "" and int(val) == 0):
+                        query_conditions.append("tournament_result_unit IS NULL and tournament_result_ordering IS NULL")
+                    elif (arg == "maxcost" and val is not ""):
+                        query_conditions.append("cost <= %s" % db.escape(val))
+                    elif (arg == "start" and val is not ""):
+                        query_conditions.append("start >= %s" % db.escape(val))
+                    elif (arg == "end" and val is not ""):
+                        query_conditions.append("end <= %s" % db.escape(val))
+
+                query = "SELECT COUNT(*) as ct FROM Event"
+                if (len(query_conditions) > 0):
+                    query += " WHERE " + (" AND ".join(query_conditions))
+                print(query)
+                cursor.execute(query)
+                count = cursor.fetchone()["ct"]
+            
+                # Pagination calculations
+                LIMIT = 9
+                page = int(request.args["page"]) if "page" in request.args else 0
+                offset = page*LIMIT
+                maxpage = math.ceil(count/LIMIT)-1
+                pages = []
+                if (maxpage >= 2):
+                    if (page == 0):
+                        pages.append(0)
+                        pages.append(1)
+                        pages.append(2)
+                    elif (page == maxpage):
+                        pages.append(maxpage-2)
+                        pages.append(maxpage-1)
+                        pages.append(maxpage)
+                    else:
+                        pages.append(page-1)
+                        pages.append(page)
+                        pages.append(page+1)
+                elif (maxpage == 1):
+                    pages.append(0)
+                    pages.append(1)
+                else:
+                    pages.append(0)
+
                 get_event = "SELECT e.eventid, e.name, e.start, e.end, e.actual_end, e.description, e.max_participants, " \
-                            "e.cost, e.paid_members_only, e.opener, u.student_name FROM Event AS e LEFT JOIN User AS u ON e.opener=u.userid;"
+                            "e.cost, e.paid_members_only, e.opener, u.student_name FROM Event AS e LEFT JOIN User AS u ON e.opener=u.userid"
+                if (len(query_conditions) > 0):
+                    get_event += " WHERE " + (" AND ".join(query_conditions))
+                get_event += " ORDER BY e.start DESC LIMIT %s OFFSET %s" % (db.escape(LIMIT), db.escape(offset))
 
                 cursor.execute(get_event)
                 entries = cursor.fetchall()
-            return render_template('events.html', entries=entries)
+
+            return render_template('events.html',
+                entries=entries,
+                pages=pages,
+                page=page,
+                maxpage=maxpage,
+                limit=LIMIT,
+                count=count,
+                start = request.args["start"] if "start" in request.args else "",
+                end = request.args["end"] if "end" in request.args else "",
+                maxcost = int(request.args["maxcost"]) if "maxcost" in request.args and request.args["maxcost"] else "",
+                free = int(request.args["free"]) if "free" in request.args and request.args["free"] else 2,
+                tournament = int(request.args["tournament"]) if "tournament" in request.args and request.args["tournament"] else 2)
         except TemplateNotFound:
             abort(500)
     else:

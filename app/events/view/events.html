@@ -7,6 +7,94 @@
 {% block headersubtitle %}{% endblock %}
 
 {% block content %}
+<a class="btn btn-outline-secondary" id="collapsebutton" data-toggle="collapse" href="#filtercollapse" role="button" aria-expanded="false" aria-controls="filtercollapse">
+	Show Filter Options
+</a><br /><br />
+<div class="collapse" id="filtercollapse">
+	<div class="card card-body">
+		<h5 class="card-title">Filtering Options</h5>
+		<form method="get">
+			<div class="row">
+				<div class="col col-xl-3">
+					<label for="start"><strong>Starting after</strong></label>
+					<div class="input-group mb-4">
+						<input type="text" name="start" class="form-control" id="start" value="{{ start }}">
+						<div class="input-group-append clearable">
+							<button class="btn btn-secondary" type="button">{{octicon("x", style="fill:white")}}</button>
+						</div>
+					</div>
+				</div>
+				<div class="col col-xl-3">
+					<label for="end"><strong>Ending before</strong></label>
+					<div class="input-group mb-4">
+						<input type="text" name="end" class="form-control" id="end" value="{{ end }}">
+						<div class="input-group-append clearable">
+							<button class="btn btn-secondary" type="button">{{octicon("x", style="fill:white")}}</button>
+						</div>
+					</div>
+				</div>
+				<div class="col col-xl-2">
+					<label for="maxcost"><strong>Maximum cost</strong></label>
+					<div class="input-group mb-4">
+						<input type="text" name="maxcost" class="form-control" id="maxcost" value="{{ maxcost }}">
+						<div class="input-group-append clearable">
+							<button class="btn btn-secondary" type="button">{{octicon("x", style="fill:white")}}</button>
+						</div>
+					</div>
+				</div>
+				<div class="col col-xl-2">
+					<label for="free"><strong>Event Cost</strong></label><br />
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio01" name="free" value="1" {% if free==1 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio01">Free</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio02" name="free" value="0" {% if free==0 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio02">Membership</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio03" name="free" value="2" {% if free==2 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio03">All</label>
+					</div>
+				</div>
+				<div class="col col-xl-2">
+					<label for="tournament"><strong>Tournaments</strong></label><br />
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio1" name="tournament" value="1" {% if tournament==1 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio1">Tournaments</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio2" name="tournament" value="0" {% if tournament==0 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio2">No Tournaments</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio3" name="tournament" value="2" {% if tournament==2 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio3">Both</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col col-md-3">
+					<input type="submit" class="btn btn-block btn-primary" value="Refine &raquo;">
+				</div>
+				<div class="col col-md-3">
+					<a class="btn btn-block btn-secondary" href=".">Clear all filters</a>
+				</div>
+			</div>
+		</form>
+	</div><br />
+</div>
+
+<form method="GET" id="resetform">
+	<input type="hidden" name="tournament" value="3" />
+</form>
+{% if entries|length == 0 %}
+<h3 class="text-muted text-center">No Results<br /><br />
+{% if request.args|length > 0 %}
+	<a class="btn btn-outline-secondary" href=".">Clear all filters</a><br /><br />
+{% endif %}
+</h3>
+{% else %}
 <table class="table table-borderless table-hover" style="width: 80%; border-collapse:collapse;">
 	<tr style="text-align: center;">
 		<th style="width: 10%;">Name</th>
@@ -41,6 +129,44 @@
 	</tr>
 	{% endfor %}
 </table>
+{% endif %}
+<div style="text-align: center; width:100%; display:block">
+	<nav style="display: inline-block;">
+	  <ul class="pagination">
+		<form method="GET">
+		  {% for arg, val in request.args.items() %}
+			{% if (arg != "page") %}
+			<input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+			{% endif %}
+		  {% endfor %}
+		  <input style="display:none" type="hidden" name="page" value="{{ page-1 }}" />
+		  <li class="page-item {{ 'disabled' if page==0 }} "><button type="submit" class="page-link" href="#">&laquo;</button></li>
+		</form>
+		{% for p in pages %}
+		  <form method="GET">
+			{% for arg, val in request.args.items() %}
+			  {% if (arg != "page") %}
+			  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+			  {% endif %}
+			{% endfor %}
+			<input style="display:none" type="hidden" name="page" value="{{ p }}" />
+			<li class="page-item {{ 'active' if page==p }}"><button type="submit" class="page-link" href="#">{{p+1}}</button></li>
+		  </form>
+		{% endfor %}
+		<form method="GET">
+		  {% for arg, val in request.args.items() %}
+			{% if (arg != "page") %}
+			<input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+			{% endif %}
+		  {% endfor %}
+		  <input style="display:none" type="hidden" name="page" value="{{ page+1 }}" />
+		  <li class="page-item {{ 'disabled' if page==maxpage }} "><button type="submit" class="page-link" href="#">&raquo;</button></li>
+		</form>
+	  </ul>
+	</nav>
+	<br />
+	<p>Showing {{page*limit+1 if count > 0 else 0}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p>
+</div>
 <div class="modal fade" id="ShowInfoModal" tabindex="-1" role="dialog" aria-labelledby="event_name" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -97,14 +223,63 @@
   </div>
 </div>
 <script>
+
+if(window.location.hash) {
+	if (window.location.hash == "#filteron") {
+		$("#filtercollapse").addClass("show")
+		$("#collapsebutton").html("Hide Filter Options")
+	}
+}
+
+$('#filtercollapse').on('hidden.bs.collapse', function () {
+	history.replaceState(null, null, ' ');
+	$("#collapsebutton").html("Show Filter Options")
+})
+
+$('#filtercollapse').on('shown.bs.collapse', function () {
+	window.location.hash = "#filteron"
+	$("#collapsebutton").html("Hide Filter Options")
+})
+
+$('.clearable').each(function () {
+	var ref = $(this);
+	var inpt = ref.parent().children()[0]
+	var cb = function(){
+		
+		var button = $($(this).parent().find(".clearable"))
+		console.log("chg")
+		if ($(this).val()) {
+			button.show()
+		} else {
+			button.hide()
+		}
+	}
+	cb.call(inpt)
+	$(inpt).on("input", cb)
+	$(inpt).on("dp.change", cb)
+
+	ref.on("click", function() {
+		$(inpt).val("")
+		cb.call(inpt)
+	})
+})
+
   $(document).on("click", "#delete_event", function () {
     var id = $(this).parent().closest('tr').attr("id").split("-")[1]
     var name = $(this).parent().closest('tr').children(1).html()
     $("#confirm_event_id").val(id)
     $("#eventNameToDelete").html(name)
  });
-</script>
-<script>
+$(function(){
+	$('#start').datetimepicker({
+		format: 'YYYY-MM-DD HH:mm:ss'
+	});
+	});
+$(function(){
+	$('#end').datetimepicker({
+		format: 'YYYY-MM-DD HH:mm:ss'
+	});
+	});
   $(document).on("click", "#event_info", function () {
     var name = $(this).parent().closest('tr').children(1).eq(0).html()
     var start = $(this).parent().closest('tr').children(1).eq(1).html()

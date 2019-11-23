@@ -9,12 +9,12 @@
 {% block content %}
 <div class=" col col-md-4">
       <form method="get">
+        {% for arg, val in request.args.items() %}
+        {% if (arg != "Difficulty") %}
+        <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+        {% endif %}
+        {% endfor %}
         <div class="input-group">
-          {% for arg, val in request.args.items() %}
-          {% if (arg != "Difficulty") %}
-          <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
-          {% endif %}
-          {% endfor %}
           <input type="text" class="form-control" placeholder="Difficulty" aria-label="Difficulty" aria-describedby="basic-addon2" name="Difficulty" value="{{ request.args['Difficulty'] or '' }}">
           <div class="input-group-append">
             <button type="submit" class="btn btn-primary">{{ octicon("search", style="fill:white") }} Search</button>
