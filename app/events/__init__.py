@@ -25,7 +25,7 @@ def show():
                         query_conditions.append("tournament_result_unit IS NOT NULL and tournament_result_ordering IS NOT NULL")
                     elif (arg == "tournament" and val is not "" and int(val) == 0):
                         query_conditions.append("tournament_result_unit IS NULL and tournament_result_ordering IS NULL")
-                    elif (arg == "maxcost" and val is not ""):
+                    elif (arg == "maxcost" and val is not "" and val.isnumeric()):
                         query_conditions.append("cost <= %s" % db.escape(val))
                     elif (arg == "start" and val is not ""):
                         query_conditions.append("start >= %s" % db.escape(val))
@@ -82,7 +82,7 @@ def show():
                 count=count,
                 start = request.args["start"] if "start" in request.args else "",
                 end = request.args["end"] if "end" in request.args else "",
-                maxcost = int(request.args["maxcost"]) if "maxcost" in request.args and request.args["maxcost"] else "",
+                maxcost = int(request.args["maxcost"]) if "maxcost" in request.args and request.args["maxcost"] and request.args["maxcost"].isnumeric() else "",
                 free = int(request.args["free"]) if "free" in request.args and request.args["free"] else 2,
                 tournament = int(request.args["tournament"]) if "tournament" in request.args and request.args["tournament"] else 2)
         except TemplateNotFound:
