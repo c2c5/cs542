@@ -7,40 +7,54 @@
 {% block headersubtitle %}{% endblock %}
 
 {% block content %}
-<table class="table table-borderless table-hover" style="width: 80%; border-collapse:collapse;">
-	<tr style="text-align: center;">
-		<th style="width: 10%;">Name</th>
-		<th style="width: 30%;">Start Time</th>
-		<th style="width: 30%;">End Time</th>
-	</tr>
-	{% for entry in entries %}
-	<tr style="text-align: center;" id="event-{{ entry.eventid }}">
-		<td>{{ entry.name }}</td>
-		<td>{{ entry.start }}</td>
-		<td>{{ entry.end }}</td>
-		<td hidden>{{ entry.description }}</td>
-		<td hidden>{{ entry.max_participants }}</td>
-		<td hidden>{{ entry.cost }}</td>
-		<td hidden>{{ entry.paid_members_only }}</td>
-		<td hidden>{{ entry.student_name }}</td>
-		<td style="padding: 5px;"><button id="event_info" class="btn btn-info" data-toggle="modal" data-target="#ShowInfoModal">{{ octicon("info", style="fill:white") }}</button></td>
-		{% if 'admin' in current_user_roles() %}
-		<td style="padding: 5px;"><a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">{{ octicon("pencil", style="fill:white") }}</a></td>
-		<td style="padding: 5px;">
-			<button id="delete_event" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
-		</td>
-		{% endif %}
-		{% if not entry.actual_end and ('admin' in current_user_roles() or entry.opener == current_user()['userid']) %}
-		<td style="padding: 5px;">
-			<form method="post">
-				<input type="hidden" name="eventid" value="{{ entry.eventid }}">
-				<button type="submit" class="btn btn-success">Open</button>
-			</form>
-		</td>
-		{% endif %}
-	</tr>
-	{% endfor %}
-</table>
+<div class="container">
+	<div class="row">
+		{% for entry in entries %}
+		<div class="col-md-4">
+			<div class="card mb-4 shadow-sm">
+				<div class="card-header">
+					<h5>{{ entry.name }}</h5>
+					<div>
+				        {% if not entry.paid_members_only %}
+				        <span class="badge badge-success">Free</span>
+				        {% endif %} 
+				        {% if entry.tournament_result_unit is not none and entry.tournament_result_ordering is not none %}
+				        <span class="badge badge-warning">{{ octicon("law") }} Tournament</span>
+				        {% endif %}
+				    </div>
+				</div>
+				<div class="card-body" id="event-{{ entry.eventid }}">
+					<p class="card-text">
+					    {% if entry.start.date() == entry.end.date() %}
+					        {{ entry.start.date().strftime("%a %b %d") }} {{ entry.start.time().strftime("%I:%M %p") }} - {{ entry.end.time().strftime("%I:%M %p") }} 
+					    {% else %}
+					        {{ entry.start.date().strftime("%a %b %d") }} {{ entry.start.time().strftime("%I:%M %p") }} - {{ entry.end.date().strftime("%a %b %d") }} {{ entry.end.time().strftime("%I:%M %p") }}
+					    {% endif %}
+					</p>
+					<p hidden>{{ entry.name }}</p>
+					<p hidden>{{ entry.start }}</p>
+					<p hidden>{{ entry.end }}</p>
+					<p hidden>{{ entry.description }}</p>
+					<p hidden>{{ entry.max_participants }}</p>
+					<p hidden>{{ entry.cost }}</p>
+					<p hidden>{{ entry.paid_members_only }}</p>
+					<p hidden>{{ entry.student_name }}</p>
+					<button id="event_info" class="btn btn-info" data-toggle="modal" data-target="#ShowInfoModal">{{ octicon("info", style="fill:white") }}</button>
+					<a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">{{ octicon("pencil", style="fill:white") }}</a>
+					<button id="delete_event" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+					{% if not entry.actual_end and ('admin' in current_user_roles() or entry.opener == current_user()['userid']) %}
+						<form method="post" style="display: inline-block">
+							<input type="hidden" name="eventid" value="{{ entry.eventid }}">
+							<button type="submit" class="btn btn-success">Open</button>
+						</form>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+
 <div class="modal fade" id="ShowInfoModal" tabindex="-1" role="dialog" aria-labelledby="event_name" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -98,22 +112,22 @@
 </div>
 <script>
   $(document).on("click", "#delete_event", function () {
-    var id = $(this).parent().closest('tr').attr("id").split("-")[1]
-    var name = $(this).parent().closest('tr').children(1).html()
+    var id = $(this).parent().closest('div').attr("id").split("-")[1]
+    var name = $(this).parent().closest('div').children(1).html()
     $("#confirm_event_id").val(id)
     $("#eventNameToDelete").html(name)
  });
 </script>
 <script>
   $(document).on("click", "#event_info", function () {
-    var name = $(this).parent().closest('tr').children(1).eq(0).html()
-    var start = $(this).parent().closest('tr').children(1).eq(1).html()
-    var end = $(this).parent().closest('tr').children(1).eq(2).html()
-    var des = $(this).parent().closest('tr').children(1).eq(3).html()
-    var mp = $(this).parent().closest('tr').children(1).eq(4).html()
-    var cost = $(this).parent().closest('tr').children(1).eq(5).html()
-    var pmo = $(this).parent().closest('tr').children(1).eq(6).html()
-    var sname = $(this).parent().closest('tr').children(1).eq(7).html()
+    var name = $(this).parent().closest('div').children(1).eq(1).html()
+    var start = $(this).parent().closest('div').children(1).eq(2).html()
+    var end = $(this).parent().closest('div').children(1).eq(3).html()
+    var des = $(this).parent().closest('div').children(1).eq(4).html()
+    var mp = $(this).parent().closest('div').children(1).eq(5).html()
+    var cost = $(this).parent().closest('div').children(1).eq(6).html()
+    var pmo = $(this).parent().closest('div').children(1).eq(7).html()
+    var sname = $(this).parent().closest('div').children(1).eq(8).html()
     $("#event_name").html(name)
     $("#des").html(des)
     $("#start").html(start)

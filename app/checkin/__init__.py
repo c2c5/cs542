@@ -50,7 +50,7 @@ def checkinout(id):
         cursor.execute(tournament_info, id)
         tour_infos = cursor.fetchall()
     get_view_query_in = "SELECT Name from checkin where eventid = %s"
-    get_view_query_out = "SELECT Name, total_time AS Time from checkout where eventid = %s"
+    get_view_query_out = "SELECT Name total_time AS Time from checkout where eventid = %s"
     if request.method == "POST":
         with db.cursor() as cursor:
             for arg in request.form:

@@ -13,7 +13,7 @@ def show():
             db = database.get_db()
             with db.cursor() as cursor:
                 get_event = "SELECT e.eventid, e.name, e.start, e.end, e.actual_end, e.description, e.max_participants, " \
-                            "e.cost, e.paid_members_only, e.opener, u.student_name FROM event AS e LEFT JOIN user AS u ON e.opener=u.userid;"
+                            "e.cost, e.paid_members_only, e.opener, e.display, u.student_name FROM event AS e LEFT JOIN user AS u ON e.opener=u.userid;"
                 cursor.execute(get_event)
                 entries = cursor.fetchall()
             return render_template('events.html', entries=entries)
@@ -23,7 +23,7 @@ def show():
         db = database.get_db()
         with db.cursor() as cursor:
             if 'delete' in request.form:
-                delete_event = "DELETE FROM event WHERE eventid=%s;"
+                delete_event = "UPDATE event SET display=0 WHERE eventid=%s;"
                 cursor.execute(delete_event, request.form['delete'])
                 if cursor.rowcount == 1:
                     db.commit()
