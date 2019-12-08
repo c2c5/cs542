@@ -179,16 +179,31 @@ def edit(id):
                     "opener=%s, tournament_result_unit=%s, tournament_result_ordering=%s WHERE eventid=%s;"
                 opener = None if (request.form['opener'] == "None") else request.form['opener']
                 if request.form['TRO'] == "None":
-                    cursor.execute(update_event, (request.form['event_name'], request.form['description'],
-                                                     request.form['start'], request.form['end'],
-                                                     request.form['max_participants'],
-                                                     request.form['cost'], request.form['PMO_Options'],
-                                                     request.form['opener'], request.form['TRU'], None, id))
+                    if request.form['TRU'] == '':
+                        cursor.execute(update_event, (request.form['event_name'], request.form['description'],
+                                                      request.form['start'], request.form['end'],
+                                                      request.form['max_participants'],
+                                                      request.form['cost'], request.form['PMO_Options'],
+                                                      request.form['opener'], None, None, id))
+                    else:
+                        cursor.execute(update_event, (request.form['event_name'], request.form['description'],
+                                                         request.form['start'], request.form['end'],
+                                                         request.form['max_participants'],
+                                                         request.form['cost'], request.form['PMO_Options'],
+                                                         request.form['opener'], request.form['TRU'], None, id))
                 else:
-                    cursor.execute(update_event, (request.form['event_name'], request.form['description'],
-                                                     request.form['start'], request.form['end'], request.form['max_participants'],
-                                                     request.form['cost'], request.form['PMO_Options'], request.form['opener'],
-                                                     request.form['TRU'], request.form['TRO'], id))
+                    if request.form['TRU'] == '':
+                        cursor.execute(update_event, (request.form['event_name'], request.form['description'],
+                                                      request.form['start'], request.form['end'],
+                                                      request.form['max_participants'],
+                                                      request.form['cost'], request.form['PMO_Options'],
+                                                      request.form['opener'],
+                                                      None, request.form['TRO'], id))
+                    else:
+                        cursor.execute(update_event, (request.form['event_name'], request.form['description'],
+                                                         request.form['start'], request.form['end'], request.form['max_participants'],
+                                                         request.form['cost'], request.form['PMO_Options'], request.form['opener'],
+                                                         request.form['TRU'], request.form['TRO'], id))
                 if (cursor.rowcount == 1):
                     db.commit()
                     flash('Event infomation has been changed! ', 'success')
@@ -215,17 +230,33 @@ def create():
                                   "paid_members_only, opener, tournament_result_unit, tournament_result_ordering) VALUES" + \
                                   "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
                 if request.form['TRO'] == "None":
-                    cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
-                                                     request.form['start'], request.form['end'],
-                                                     request.form['max_participants'],
-                                                     request.form['cost'], request.form['PMO_Options'],
-                                                     request.form['opener'],
-                                                     None, None))
+                    if request.form['TRU'] == '':
+                        cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
+                                                         request.form['start'], request.form['end'],
+                                                         request.form['max_participants'],
+                                                         request.form['cost'], request.form['PMO_Options'],
+                                                         request.form['opener'],
+                                                         None, None))
+                    else:
+                        cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
+                                                         request.form['start'], request.form['end'],
+                                                         request.form['max_participants'],
+                                                         request.form['cost'], request.form['PMO_Options'],
+                                                         request.form['opener'],
+                                                         request.form['TRU'], None))
                 else:
-                    cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
-                                                     request.form['start'], request.form['end'], request.form['max_participants'],
-                                                     request.form['cost'], request.form['PMO_Options'], request.form['opener'],
-                                                     request.form['TRU'], request.form['TRO']))
+                    if request.form['TRU'] == '':
+                        cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
+                                                         request.form['start'], request.form['end'],
+                                                         request.form['max_participants'],
+                                                         request.form['cost'], request.form['PMO_Options'],
+                                                         request.form['opener'],
+                                                         None, request.form['TRO']))
+                    else:
+                        cursor.execute(add_event_query, (request.form['event_name'], request.form['description'],
+                                                         request.form['start'], request.form['end'], request.form['max_participants'],
+                                                         request.form['cost'], request.form['PMO_Options'], request.form['opener'],
+                                                         request.form['TRU'], request.form['TRO']))
                 if (cursor.rowcount == 1):
                     db.commit()
                     flash('Created event', 'success')

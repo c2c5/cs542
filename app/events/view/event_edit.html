@@ -112,7 +112,11 @@
 		<div class="input-group-prepend">
 			<span class="input-group-text" id="addon-unit">Tournament Result Unit</span>
 		</div>
+		{% if entry.tournament_result_unit is none %}
+		<input type="text" name="TRU" class="form-control" aria-label='Max Participants' aria-describedby='addon-unit'>
+		{% else %}
 		<input type="text" name="TRU" class="form-control" aria-label='Max Participants' aria-describedby='addon-unit' value="{{ entry.tournament_result_unit }}">
+		{% endif %}
 	</div>
 	<button type="submit" class="btn btn-primary">Submit</button>
 	{% endfor %}
