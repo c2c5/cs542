@@ -4,6 +4,7 @@ import util.database as db
 import util.assets as assets
 from util.octicon import get_octicon_svg
 from app.accounts.session import current_user, current_user_roles
+from app.events.session import get_result
 
 # Blueprints
 from app.accounts import accounts
@@ -20,6 +21,7 @@ assets.register_assets(app)
 app.jinja_env.globals.update(current_user=current_user)
 app.jinja_env.globals.update(current_user_roles=current_user_roles)
 app.jinja_env.globals.update(octicon=get_octicon_svg)
+app.add_template_global(get_result, 'get_result')
 
 app.register_blueprint(accounts, url_prefix='/user')
 app.register_blueprint(events, url_prefix='/event')

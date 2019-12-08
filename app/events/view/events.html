@@ -7,15 +7,104 @@
 {% block headersubtitle %}{% endblock %}
 
 {% block content %}
+<a class="btn btn-outline-secondary" id="collapsebutton" data-toggle="collapse" href="#filtercollapse" role="button" aria-expanded="false" aria-controls="filtercollapse">
+	Show Filter Options
+</a><br /><br />
+<div class="collapse" id="filtercollapse">
+	<div class="card card-body">
+		<h5 class="card-title">Filtering Options</h5>
+		<form method="get">
+			<div class="row">
+				<div class="col col-xl-3">
+					<label for="start"><strong>Starting after</strong></label>
+					<div class="input-group mb-4">
+						<input type="text" name="start" class="form-control" id="start" value="{{ start }}">
+						<div class="input-group-append clearable">
+							<button class="btn btn-secondary" type="button">{{octicon("x", style="fill:white")}}</button>
+						</div>
+					</div>
+				</div>
+				<div class="col col-xl-3">
+					<label for="end"><strong>Ending before</strong></label>
+					<div class="input-group mb-4">
+						<input type="text" name="end" class="form-control" id="end" value="{{ end }}">
+						<div class="input-group-append clearable">
+							<button class="btn btn-secondary" type="button">{{octicon("x", style="fill:white")}}</button>
+						</div>
+					</div>
+				</div>
+				<div class="col col-xl-2">
+					<label for="maxcost"><strong>Maximum cost</strong></label>
+					<div class="input-group mb-4">
+						<input type="text" name="maxcost" class="form-control" id="maxcost" value="{{ maxcost }}">
+						<div class="input-group-append clearable">
+							<button class="btn btn-secondary" type="button">{{octicon("x", style="fill:white")}}</button>
+						</div>
+					</div>
+				</div>
+				<div class="col col-xl-2">
+					<label for="free"><strong>Event Cost</strong></label><br />
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio01" name="free" value="1" {% if free==1 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio01">Free</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio02" name="free" value="0" {% if free==0 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio02">Membership</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio03" name="free" value="2" {% if free==2 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio03">All</label>
+					</div>
+				</div>
+				<div class="col col-xl-2">
+					<label for="tournament"><strong>Tournaments</strong></label><br />
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio1" name="tournament" value="1" {% if tournament==1 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio1">Tournaments</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio2" name="tournament" value="0" {% if tournament==0 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio2">No Tournaments</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="inlineRadio3" name="tournament" value="2" {% if tournament==2 %}checked{% endif %}>
+						<label class="form-check-label" for="inlineRadio3">Both</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col col-md-3">
+					<input type="submit" class="btn btn-block btn-primary" value="Refine &raquo;">
+				</div>
+				<div class="col col-md-3">
+					<a class="btn btn-block btn-secondary" href=".">Clear all filters</a>
+				</div>
+			</div>
+		</form>
+	</div><br />
+</div>
+
+<form method="GET" id="resetform">
+	<input type="hidden" name="tournament" value="3" />
+</form>
+{% if entries|length == 0 %}
+<h3 class="text-muted text-center">No Results<br /><br />
+{% if request.args|length > 0 %}
+	<a class="btn btn-outline-secondary" href=".">Clear all filters</a><br /><br />
+{% endif %}
+</h3>
+{% else %}
 <div class="container">
 	<div class="row">
 		{% for entry in entries %}
-		<div class="col-md-4">
-			<div class="card mb-4 shadow-sm">
+		{% if entry.display == 1 %}
+		<div class="col-md-4 mb-4">
+			<div class="card shadow-sm h-100">
 				<div class="card-header">
 					<h5>{{ entry.name }}</h5>
 					<div>
-				        {% if not entry.paid_members_only %}
+				        {% if not entry.paid_members_only and entry.cost == 0 %}
 				        <span class="badge badge-success">Free</span>
 				        {% endif %} 
 				        {% if entry.tournament_result_unit is not none and entry.tournament_result_ordering is not none %}
@@ -23,8 +112,8 @@
 				        {% endif %}
 				    </div>
 				</div>
-				<div class="card-body" id="event-{{ entry.eventid }}">
-					<p class="card-text">
+				<div class="card-body" id="event-{{ entry.eventid }}" style="display: flex; flex-direction: column;">
+					<p class="card-text" style="flex: 1">
 					    {% if entry.start.date() == entry.end.date() %}
 					        {{ entry.start.date().strftime("%a %b %d") }} {{ entry.start.time().strftime("%I:%M %p") }} - {{ entry.end.time().strftime("%I:%M %p") }} 
 					    {% else %}
@@ -39,20 +128,77 @@
 					<p hidden>{{ entry.cost }}</p>
 					<p hidden>{{ entry.paid_members_only }}</p>
 					<p hidden>{{ entry.student_name }}</p>
-					<button id="event_info" class="btn btn-info" data-toggle="modal" data-target="#ShowInfoModal">{{ octicon("info", style="fill:white") }}</button>
-					<a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">{{ octicon("pencil", style="fill:white") }}</a>
-					<button id="delete_event" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
-					{% if not entry.actual_end and ('admin' in current_user_roles() or entry.opener == current_user()['userid']) %}
-						<form method="post" style="display: inline-block">
-							<input type="hidden" name="eventid" value="{{ entry.eventid }}">
-							<button type="submit" class="btn btn-success">Open</button>
-						</form>
-					{% endif %}
+					<table hidden>
+						{% if entry.result is not none %}
+						<tr>
+                			<th>Name</th>
+                			<th>Result</th>
+            			</tr>
+						{% for result in entry.result%}
+						<tr>
+							<td>{{ result.name }}</td>
+							<td>{{ result.score }}{{ entry.tournament_result_unit }}</td>
+						</tr>
+						{% endfor %}
+						{% endif %}
+					</table>
+					<div>
+						<button id="event_info" class="btn btn-info" data-toggle="modal" data-target="#ShowInfoModal">{{ octicon("info", style="fill:white") }}</button>
+						{% if 'admin' in current_user_roles() %}
+						<a class="btn btn-info" href="{{ url_for('events.edit', id=entry.eventid) }}">{{ octicon("pencil", style="fill:white") }}</a>
+						<button id="delete_event" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">{{ octicon("trashcan", style="fill:white") }}</button>
+						{% endif %}
+						{% if not entry.actual_end and ('admin' in current_user_roles() or entry.opener == current_user()['userid']) %}
+							<form method="post" style="display: inline-block">
+								<input type="hidden" name="eventid" value="{{ entry.eventid }}">
+								<button type="submit" class="btn btn-success">Open</button>
+							</form>
+						{% endif %}
+					</div>
 				</div>
 			</div>
 		</div>
+		{% endif %}
 		{% endfor %}
 	</div>
+</div>
+{% endif %}
+<div style="text-align: center; width:100%; display:block">
+	<nav style="display: inline-block;">
+	  <ul class="pagination">
+		<form method="GET">
+		  {% for arg, val in request.args.items() %}
+			{% if (arg != "page") %}
+			<input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+			{% endif %}
+		  {% endfor %}
+		  <input style="display:none" type="hidden" name="page" value="{{ page-1 }}" />
+		  <li class="page-item {{ 'disabled' if page==0 }} "><button type="submit" class="page-link" href="#">&laquo;</button></li>
+		</form>
+		{% for p in pages %}
+		  <form method="GET">
+			{% for arg, val in request.args.items() %}
+			  {% if (arg != "page") %}
+			  <input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+			  {% endif %}
+			{% endfor %}
+			<input style="display:none" type="hidden" name="page" value="{{ p }}" />
+			<li class="page-item {{ 'active' if page==p }}"><button type="submit" class="page-link" href="#">{{p+1}}</button></li>
+		  </form>
+		{% endfor %}
+		<form method="GET">
+		  {% for arg, val in request.args.items() %}
+			{% if (arg != "page") %}
+			<input style="display:none" type="hidden" name="{{arg}}" value="{{val}}" />
+			{% endif %}
+		  {% endfor %}
+		  <input style="display:none" type="hidden" name="page" value="{{ page+1 }}" />
+		  <li class="page-item {{ 'disabled' if page==maxpage }} "><button type="submit" class="page-link" href="#">&raquo;</button></li>
+		</form>
+	  </ul>
+	</nav>
+	<br />
+	<p>Showing {{page*limit+1 if count > 0 else 0}}-{{(page+1)*limit if (page+1)*limit < count else count}} of {{count}}</p>
 </div>
 
 <div class="modal fade" id="ShowInfoModal" tabindex="-1" role="dialog" aria-labelledby="event_name" aria-hidden="true">
@@ -69,9 +215,9 @@
 					<div class="card-header">Description</div>
 					<div id="des" class="card-body"></div>
 					<div class="card-header">Start Time</div>
-					<div id="start" class="card-body"></div>
+					<div id="starttime" class="card-body"></div>
 					<div class="card-header">End Time</div>
-					<div id="end" class="card-body"></div>
+					<div id="endtime" class="card-body"></div>
 					<div class="card-header">Max Participants</div>
 					<div id="mp" class="card-body"></div>
 					<div class="card-header">Cost</div>
@@ -80,6 +226,10 @@
 					<div id="pmo" class="card-body"></div>
 					<div class="card-header">Opener</div>
 					<div id="sname" class="card-body"></div>
+					<div id="result_head" class="card-header">Tournament Result</div>
+					<div class="card-body">
+						<table id="result" class="table table-borderless"></table>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -111,31 +261,90 @@
   </div>
 </div>
 <script>
+
+if(window.location.hash) {
+	if (window.location.hash == "#filteron") {
+		$("#filtercollapse").addClass("show")
+		$("#collapsebutton").html("Hide Filter Options")
+	}
+}
+
+$('#filtercollapse').on('hidden.bs.collapse', function () {
+	history.replaceState(null, null, ' ');
+	$("#collapsebutton").html("Show Filter Options")
+})
+
+$('#filtercollapse').on('shown.bs.collapse', function () {
+	window.location.hash = "#filteron"
+	$("#collapsebutton").html("Hide Filter Options")
+})
+
+$('.clearable').each(function () {
+	var ref = $(this);
+	var inpt = ref.parent().children()[0]
+	var cb = function(){
+		
+		var button = $($(this).parent().find(".clearable"))
+		if ($(this).val()) {
+			button.show()
+		} else {
+			button.hide()
+		}
+	}
+	cb.call(inpt)
+	$(inpt).on("input", cb)
+	$(inpt).on("dp.change", cb)
+
+	ref.on("click", function() {
+		$(inpt).val("")
+		cb.call(inpt)
+	})
+})
+
   $(document).on("click", "#delete_event", function () {
-    var id = $(this).parent().closest('div').attr("id").split("-")[1]
-    var name = $(this).parent().closest('div').children(1).html()
+    var id = $(this).parent().parent().closest('div').attr("id").split("-")[1]
+    var name = $(this).parent().parent().children().eq(1).html()
+    console.log(id)
     $("#confirm_event_id").val(id)
     $("#eventNameToDelete").html(name)
  });
-</script>
-<script>
+$(function(){
+	$('#start').datetimepicker({
+		format: 'YYYY-MM-DD HH:mm:ss'
+	});
+	});
+$(function(){
+	$('#end').datetimepicker({
+		format: 'YYYY-MM-DD HH:mm:ss'
+	});
+	});
   $(document).on("click", "#event_info", function () {
-    var name = $(this).parent().closest('div').children(1).eq(1).html()
-    var start = $(this).parent().closest('div').children(1).eq(2).html()
-    var end = $(this).parent().closest('div').children(1).eq(3).html()
-    var des = $(this).parent().closest('div').children(1).eq(4).html()
-    var mp = $(this).parent().closest('div').children(1).eq(5).html()
-    var cost = $(this).parent().closest('div').children(1).eq(6).html()
-    var pmo = $(this).parent().closest('div').children(1).eq(7).html()
-    var sname = $(this).parent().closest('div').children(1).eq(8).html()
+    var name = $(this).parent().parent().children().eq(1).html()
+    var start = $(this).parent().parent().children().eq(2).html()
+    var end = $(this).parent().parent().closest('div').children(1).eq(3).html()
+    var des = $(this).parent().parent().closest('div').children(1).eq(4).html()
+    var mp = $(this).parent().parent().closest('div').children(1).eq(5).html()
+    var cost = $(this).parent().parent().closest('div').children(1).eq(6).html()
+    var pmo = $(this).parent().parent().closest('div').children(1).eq(7).html()
+    var sname = $(this).parent().parent().closest('div').children(1).eq(8).html()
+    var result = $(this).parent().parent().closest('div').children(1).eq(9).html()
+    result = result.replace(/^\s+|\s+$/g, '')
+    if (result == "") {
+  		$("#result_head").hide()
+  		$("#result").hide()
+    } else {
+    	$("#result_head").show()
+    	$('#result').show()
+    }
     $("#event_name").html(name)
     $("#des").html(des)
-    $("#start").html(start)
-    $("#end").html(end)
+    $("#starttime").html(start)
+    $("#endtime").html(end)
     $("#mp").html(mp)
     $("#cost").html(cost)
     $("#pmo").html(pmo)
     $("#sname").html(sname)
+    $("#result").html(result)
  });
 </script>
 {% endblock %}

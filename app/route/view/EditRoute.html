@@ -1,6 +1,6 @@
 {%extends 'base.html' %}
 
-<h1> {% block title %}SetRoutes{% endblock %} </h1>
+<h1> {% block title %}EditRoutes{% endblock %} </h1>
 
 {% block page %}
 <script type="text/javascript">
@@ -15,40 +15,42 @@ $(document).ready( function() {
     $('#file').on('fileselect', function(event, numFiles, label) {
         var input = $(this).parents('.input-group').find(':text'),
             log = numFiles > 1 ? numFiles + ' files selected' : label;
-
         $("#file-label").html(log)
     });
 });
 </script>
 
-<h1>Start Setting</h1>
+<h1>Editing</h1>
 <form method="post" enctype="multipart/form-data">
     <hr>
         <div class="form-group">
-            <label for="Difficulty"><b>Difficulty</b></label>
-            <input type="text" class="form-control" id="Difficulty" placeholder="1-10" name="Difficulty" required>
+            <label for="Difficulty"><b>Set a New Difficulty</b></label>
+            <input type="text" class="form-control" id="Difficulty" placeholder="1-10" name="Difficulty" value="{{ old_data['difficulty'] }}" required>
         </div>
     <hr>
         {% if 'admin' in current_user_roles() %}
         <div class="form-group">
             <label for="SetBy"><b>SetBy</b></label>
             <select class="form-control" name="SetBy" id="SetBy">
-			    <option value="None">Select an Setter</option>
-                    {% for entry in entries %}
-                        <option value="{{ entry['userid'] }}">{{ entry.student_name }}</option>
+			    <option value="None" {{"selected='selected'" if old_data['set_by'] == none}}> Select a Setter</option>
+                    {% for entry in setters %}
+                        <option value="{{ entry['userid'] }}" {{"selected='selected'" if old_data['set_by'] == entry['userid']}}> {{ entry.student_name }}</option>
 			        {% endfor %}
 		    </select>
         </div>
         {% endif %}
     <hr>
 
-    <label><b>UploadPhoto</b></label>
+    <b>Old Photo:</b><br />
+    <img src="/static/RoutePictures/{{ old_data['picture'] }}" style="max-width:200px; max-height:200px"/><br/><br/>
+    <label><b>Upload A New Photo</b></label>
         <div class="custom-file">
             <input type="file" class="custom-file-input" id="file" name="file">
             <label class="custom-file-label" id="file-label">Choose file</label>
         </div>
+
+
     <hr>
     <button type="submit" class="btn btn-primary">Submit</button>
-
 </form>
 {% endblock %}

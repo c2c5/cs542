@@ -28,7 +28,14 @@
             {% else %}
             {% for record in records %}
             <tr style="text-align: center;" id="{{ tour_info.unit }}">
+                <td hidden>{{ record['userid'] }}</td>
+                <td hidden>{{ id }}</td>
+                <td hidden>{{ get_result(id, record['userid']) }}</td>
+                {% if get_result(id, record['userid']) == none %}
                 <td><button id="resultBotton" class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#resultModal">{{ record['Name'] }}</button></td>
+                {% else %}
+                <td><button id="resultBotton" class="btn btn-dark" type="button" data-toggle="modal" data-target="#resultModal">{{ record['Name'] }}</button></td>
+                {% endif %}
             </tr>
             {% endfor %}
             {% endif %}
@@ -53,7 +60,14 @@
             {% else %}
             {% for check_out in check_outs %}
             <tr id="{{ tour_info.unit }}">
+                <td hidden>{{ check_out['userid'] }}</td>
+                <td hidden>{{ id }}</td>
+                <td hidden>{{ get_result(id, check_out['userid'])}}</td>
+                {% if get_result(id, check_out['userid']) == none %}
                 <td><button id="resultBotton" class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#resultModal">{{ check_out['Name'] }}</button></td>
+                {% else %}
+                <td><button id="resultBotton" class="btn btn-dark" type="button" data-toggle="modal" data-target="#resultModal">{{ check_out['Name'] }}</button></td>
+                {% endif %}
                 <td>{{ check_out['Time'] }}</td>
             </tr>
             {% endfor %}
@@ -72,9 +86,9 @@
         </button>
       </div>
       <div class="modal-body">
-        <form id="tour_result">
+        <form id="tour_result" method="post">
             <div class="input-group" style="width: 50%;">
-                <input type="text" name="result" class="form-control" placeholder="tournament result" aria-describedby="unit">
+                <input type="text" name="result" id="result" class="form-control" placeholder="tournament result" aria-describedby="unit" value="">
                 <input type="hidden" name="result_stuid" id="result_stuid" value="">
                 <input type="hidden" name="result_eventid" id="result_eventid" value="">
                 <div class="input-group-append">
@@ -94,8 +108,20 @@
     $(document).on("click", "#resultBotton", function () {
         var name = $(this).html()
         var unit = $(this).parent().closest('tr').attr("id")
-        $("#inputModal").html('Result for ' + name)
+        var eventid = $(this).parent().closest('tr').children().eq(1).html()
+        var userid = $(this).parent().closest('tr').children().eq(0).html()
+        var result = $(this).parent().closest('tr').children().eq(2).html()
+        if (result == 'None') {
+            $("#inputModal").html('Insert Result for ' + name)
+            $("#result").attr('value', "")
+        }
+        else {
+            $("#inputModal").html('Change Result for ' + name)
+            $("#result").attr('value', result)
+        }
         $("#unit").html(unit)
+        $('#result_eventid').attr('value', eventid)
+        $('#result_stuid').attr('value', userid)
     });
 </script>
 <script>

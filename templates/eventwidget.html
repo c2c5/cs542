@@ -2,7 +2,7 @@
 <div class="card-body">
     <h5 class="card-title">{{ event.name }}
     <div style="float:right">
-        {% if not event.paid_members_only %}
+        {% if not event.paid_members_only and event.cost == 0 %}
         <span class="badge badge-success">Free</span>
         {% endif %} 
         {% if event.tournament_result_unit is not none and event.tournament_result_ordering is not none %}
