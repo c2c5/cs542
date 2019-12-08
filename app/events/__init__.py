@@ -180,6 +180,7 @@ def edit(id):
                 opener = None if (request.form['opener'] == "None") else request.form['opener']
                 if request.form['TRO'] == "None":
                     if request.form['TRU'] == '':
+                        print(11111)
                         cursor.execute(update_event, (request.form['event_name'], request.form['description'],
                                                       request.form['start'], request.form['end'],
                                                       request.form['max_participants'],
@@ -209,7 +210,7 @@ def edit(id):
                     flash('Event infomation has been changed! ', 'success')
                     return redirect(url_for('events.show_info', id=id, **request.args))
                 else:
-                    flash('Check if you insert the correct information', 'danger')
+                    flash('Check if you insert the correct information or change the information', 'danger')
                     return redirect(url_for('events.show_info', id=id, **request.args))
         except pymysql.InternalError as e:
             flash(e.args[1], 'danger')
