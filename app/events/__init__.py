@@ -131,9 +131,25 @@ def show():
 def show_info(id):
     db = database.get_db()
     with db.cursor() as cursor:
-        get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only FROM Event WHERE eventid=%s;"
+        get_event_info = "SELECT name, start, end, description, max_participants, cost, paid_members_only, " \
+                         "tournament_result_unit, tournament_result_ordering FROM Event WHERE eventid=%s;"
+        get_result_asc = "SELECT U.student_name as name, T.score as score FROM tournamentparticipants as T, " \
+                         "user as U WHERE U.userid=T.userid and T.eventid=%s ORDER BY score;"
+        get_result_desc = "SELECT U.student_name as name, T.score as score FROM tournamentparticipants as T, " \
+                          "user as U WHERE U.userid=T.userid and T.eventid=%s ORDER BY score DESC;"
         cursor.execute(get_event_info, id)
         entries = cursor.fetchall()
+        for entry in entries:
+            if entry['tournament_result_ordering'] is None:
+                entry['result'] = None
+            elif entry['tournament_result_ordering'] == 1:
+                cursor.execute(get_result_asc, id)
+                results = cursor.fetchall()
+                entry['result'] = results
+            else:
+                cursor.execute(get_result_desc, id)
+                results = cursor.fetchall()
+                entry['result'] = results
         get_opener = "SELECT student_name FROM User AS u, Event AS e WHERE u.userid = e.opener and e.eventid=%s;"
         cursor.execute(get_opener, id)
         openers = cursor.fetchall()
@@ -167,7 +183,7 @@ def edit(id):
                                                      request.form['start'], request.form['end'],
                                                      request.form['max_participants'],
                                                      request.form['cost'], request.form['PMO_Options'],
-                                                     request.form['opener'], None, None, id))
+                                                     request.form['opener'], request.form['TRU'], None, id))
                 else:
                     cursor.execute(update_event, (request.form['event_name'], request.form['description'],
                                                      request.form['start'], request.form['end'], request.form['max_participants'],

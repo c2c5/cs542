@@ -14,7 +14,7 @@
   <div class="card-body">
     {{ entry.description }}
   </div>
-  <div class="card-header">Strat Time</div>
+  <div class="card-header">Start Time</div>
   <div class="card-body">
     {{ entry.start }}
   </div>
@@ -39,6 +39,23 @@
   	{% for opener in openers %}
   	{{ opener.student_name }}
   	{% endfor %}
+  </div>
+  {% if entry.result is not none %}
+  <div class="card-header">Tournament Result</div>
+  <div class="card-body">
+    <table class="table table-borderless table-hover" style="width: 50%">
+      <tr>
+          <th>Name</th>
+          <th>Result</th>
+      </tr>
+      {% for result in entry.result%}
+      <tr>
+        <td>{{ result.name }}</td>
+        <td>{{ result.score }}{{ entry.tournament_result_unit }}</td>
+      </tr>
+      {% endfor %}
+      {% endif %}
+    </table>
   </div>
 </div>
 {% endfor %}
