@@ -4,13 +4,17 @@
 
 {% block page %}
 <h1>Checkin/out</h1>
-<form method="post">
-    <div class="input-group mb-3" style="width: 50%;">
+<form method="post" style="display: inline-block; width: 50%;" class="mr-3">
+    <div class="input-group mb-3">
         <input type="text" class="form-control" id="StudentID" placeholder="StudentID" name="StudentID" aria-describedby="StudentID-button" required>
         <div class="input-group-append">
             <button class="btn btn-primary" type="submit" id="StudentID-button">Checkin/out</button>
         </div>
     </div>
+</form>
+<form method="post" style="display: inline-block; vertical-align:top">
+    <input type="hidden" name="eventid" value="{{ id }}">
+    <button type="submit" class="btn btn-danger">Close</button>
 </form>
 <div style="display:flex; flex-flow: row wrap; width: 100%; max-height:50vh">
     <div class="col-md-3" style="padding: 16px">
